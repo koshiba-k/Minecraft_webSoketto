@@ -1,0 +1,51 @@
+<h1 style="margin-bottom: 30px; color: #2d3748;">購入履歴</h1>
+
+<% if (history.length === 0) { %>
+    <div style="text-align: center; padding: 50px; color: #718096;">
+        <h3>購入履歴がありません</h3>
+        <p><a href="/shop" class="btn">ショップに戻る</a></p>
+    </div>
+<% } else { %>
+    <div class="card">
+        <h2>購入履歴一覧</h2>
+        <div style="margin-bottom: 20px;">
+            <% history.forEach(function(purchase) { %>
+                <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #e2e8f0;">
+                    <img src="<%= purchase.imagePath %>" alt="<%= purchase.item_name %>" style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;">
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; margin-bottom: 5px;"><%= purchase.item_name %></div>
+                        <div style="color: #718096; font-size: 14px;">ジャンル: <%= purchase.genre %></div>
+                        <div style="color: #718096; font-size: 12px;">購入日: <%= new Date(purchase.purchase_date).toLocaleString('ja-JP') %></div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; margin-bottom: 5px;">数量: <%= purchase.quantity %></div>
+                        <div style="color: #48bb78; font-weight: bold;"><%= purchase.total_price.toLocaleString() %>円</div>
+                        <button class="btn btn-success" style="margin-top: 6px;" onclick="reorder(<%= purchase.item_id %>, <%= purchase.quantity %>)">再購入</button>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/shop" class="btn">ショップに戻る</a>
+    </div>
+<% } %>
+
+<script>
+function reorder(itemId, quantity) {
+  fetch('/shop/add-to-cart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ itemId, quantity })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showPopup('カートに追加しました！');
+    } else {
+      showPopup('エラー: ' + (data.message || '追加に失敗しました'));
+    }
+  });
+}
+</script> 

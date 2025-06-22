@@ -1,0 +1,186 @@
+<h1 style="margin-bottom: 30px; color: #2d3748;">Minecraftアイテムショップ</h1>
+
+<!-- 検索フォーム -->
+<form class="search-form" method="GET" action="/shop" style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+    <input type="text" name="search" placeholder="アイテム名で検索..." value="<%= searchTerm || '' %>" class="search-input" list="item-suggest">
+    <datalist id="item-suggest"></datalist>
+    <select name="sort" class="sort-select" onchange="this.form.submit()">
+      <% if (!sort || sort === 'default') { %>
+        <option value="default" selected>並び順: 標準</option>
+      <% } else { %>
+        <option value="default">並び順: 標準</option>
+      <% } %>
+      <% if (sort === 'price_asc') { %>
+        <option value="price_asc" selected>価格が安い順</option>
+      <% } else { %>
+        <option value="price_asc">価格が安い順</option>
+      <% } %>
+      <% if (sort === 'price_desc') { %>
+        <option value="price_desc" selected>価格が高い順</option>
+      <% } else { %>
+        <option value="price_desc">価格が高い順</option>
+      <% } %>
+      <% if (sort === 'newest') { %>
+        <option value="newest" selected>新着順</option>
+      <% } else { %>
+        <option value="newest">新着順</option>
+      <% } %>
+      <% if (sort === 'oldest') { %>
+        <option value="oldest" selected>古い順</option>
+      <% } else { %>
+        <option value="oldest">古い順</option>
+      <% } %>
+      <% if (sort === 'name_asc') { %>
+        <option value="name_asc" selected>名前順（A→Z）</option>
+      <% } else { %>
+        <option value="name_asc">名前順（A→Z）</option>
+      <% } %>
+      <% if (sort === 'name_desc') { %>
+        <option value="name_desc" selected>名前順（Z→A）</option>
+      <% } else { %>
+        <option value="name_desc">名前順（Z→A）</option>
+      <% } %>
+    </select>
+    <button type="submit" class="btn">検索</button>
+    <% if (searchTerm) { %>
+        <a href="/shop" class="btn btn-danger">検索クリア</a>
+    <% } %>
+</form>
+
+<!-- ジャンルフィルター -->
+<% const genresEscaped = genres.map(g => encodeURIComponent(g)); %>
+<div class="genre-filter">
+    <a href="/shop" class="genre-btn <%= !selectedGenre ? 'active' : '' %>">すべて</a>
+    <% genres.forEach(function(genre, i) { %>
+        <a href="/shop?genre=<%= genresEscaped[i] %>" class="genre-btn <%= selectedGenre === genre ? 'active' : '' %>"><%= (genresDisplay && genresDisplay[i]) ? genresDisplay[i] : genre %></a>
+    <% }); %>
+</div>
+
+<% if (searchTerm || selectedGenre) { %>
+    <!-- 検索結果または特定ジャンルの場合 -->
+    <div class="grid">
+        <% items.forEach(function(item) { %>
+            <div class="item-card">
+                <img src="<%= item.imagePath %>" alt="<%= item.name %>" class="item-image">
+                <button class="wishlist-btn" data-item-id="<%= item.id %>" style="position:absolute;top:8px;right:12px;background:none;border:none;font-size:1.3rem;cursor:pointer;z-index:2;">
+                    <span class="wishlist-heart" data-in-wishlist="<%= item.inWishlist ? '1' : '' %>"><%= item.inWishlist ? '♥' : '♡' %></span>
+                </button>
+                <div class="item-name"><%= item.name %></div>
+                <div class="item-price"><%= item.price.toLocaleString() %>円</div>
+                
+                <div class="quantity-controls">
+                    <button type="button" class="quantity-btn" onclick="updateQuantity(<%= item.id %>, -1)">-</button>
+                    <input type="number" id="quantity-<%= item.id %>" class="quantity-input" value="0" min="0" style="text-align:center;">
+                    <button type="button" class="quantity-btn" onclick="updateQuantity(<%= item.id %>, 1)">+</button>
+                </div>
+                
+                <button type="button" class="btn btn-success" onclick="addToCart(<%= item.id %>)">カートに追加</button>
+            </div>
+        <% }); %>
+    </div>
+<% } else { %>
+    <!-- 一律で全件グリッド表示 -->
+    <div class="grid">
+        <% items.forEach(function(item) { %>
+            <div class="item-card">
+                <img src="<%= item.imagePath %>" alt="<%= item.name %>" class="item-image">
+                <button class="wishlist-btn" data-item-id="<%= item.id %>" style="position:absolute;top:8px;right:12px;background:none;border:none;font-size:1.3rem;cursor:pointer;z-index:2;">
+                    <span class="wishlist-heart" data-in-wishlist="<%= item.inWishlist ? '1' : '' %>"><%= item.inWishlist ? '♥' : '♡' %></span>
+                </button>
+                <div class="item-name"><%= item.name %></div>
+                <div class="item-price"><%= item.price.toLocaleString() %>円</div>
+                <div class="quantity-controls">
+                    <button type="button" class="quantity-btn" onclick="updateQuantity(<%= item.id %>, -1)">-</button>
+                    <input type="number" id="quantity-<%= item.id %>" class="quantity-input" value="0" min="0" style="text-align:center;">
+                    <button type="button" class="quantity-btn" onclick="updateQuantity(<%= item.id %>, 1)">+</button>
+                </div>
+                <button type="button" class="btn btn-success" onclick="addToCart(<%= item.id %>)">カートに追加</button>
+            </div>
+        <% }); %>
+    </div>
+<% } %>
+
+<% if (items.length === 0) { %>
+    <div style="text-align: center; padding: 50px; color: #718096;">
+        <h3>アイテムが見つかりませんでした</h3>
+        <p>検索条件を変更してお試しください</p>
+    </div>
+<% } %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.wishlist-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const itemId = btn.getAttribute('data-item-id');
+      const heart = btn.querySelector('.wishlist-heart');
+      const inWishlist = heart.getAttribute('data-in-wishlist') === '1';
+      fetch(inWishlist ? '/shop/wishlist/remove' : '/shop/wishlist/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          heart.textContent = inWishlist ? '♡' : '♥';
+          heart.setAttribute('data-in-wishlist', inWishlist ? '' : '1');
+          showPopup(inWishlist ? 'ウィッシュリストから削除しました' : 'ウィッシュリストに追加しました');
+        } else {
+          showPopup('エラーが発生しました');
+        }
+      });
+    });
+  });
+});
+
+// サジェスト用アイテム名取得
+fetch('/shop/api/item-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('item-suggest');
+  datalist.innerHTML = list.map(name => `<option value="${name}">`).join('');
+});
+</script>
+
+<style>
+.wishlist-btn { position: absolute; top: 8px; right: 12px; background: none; border: none; font-size: 1.3rem; cursor: pointer; z-index: 2; }
+.wishlist-heart { color: #ff9900; text-shadow: 0 1px 2px #fff; }
+.wishlist-heart[data-in-wishlist="1"] { color: #b12704; }
+.item-card { position: relative; }
+.sort-select {
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.4rem;
+  border: 1px solid #e2e8f0;
+  font-size: 1rem;
+  background: #fff;
+  color: #232f3e;
+  margin-left: 0.5rem;
+}
+.genre-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 1.5rem 0 1.5rem 0;
+}
+.genre-btn {
+  background: #edf2f7;
+  color: #232f3e;
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.4rem 1.1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+  font-weight: 500;
+}
+.genre-btn.active, .genre-btn:hover {
+  background: #ffd580;
+  color: #232f3e;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  min-height: 200px;
+}
+</style> 

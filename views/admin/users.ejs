@@ -1,0 +1,78 @@
+<h1 style="margin-bottom: 30px; color: #2d3748;">👥 ユーザー情報詳細</h1>
+<form method="GET" action="/admin/users" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
+  <input type="text" name="q" placeholder="ユーザー名" value="<%= typeof query !== 'undefined' ? query : '' %>" list="user-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+  <datalist id="user-suggest"></datalist>
+  <button type="submit" class="btn btn-success">検索</button>
+</form>
+<script>
+// サジェスト用ユーザー名取得
+fetch('/admin/api/user-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('user-suggest');
+  datalist.innerHTML = list.map(name => `<option value="${name}">`).join('');
+});
+</script>
+<!-- 新規ユーザー追加フォーム -->
+<form method="POST" action="/admin/users/add" style="margin-bottom: 2rem; display: flex; gap: 1rem; align-items: center; background: #f9fafb; padding: 1rem; border-radius: 0.5rem;">
+  <input type="text" name="username" placeholder="ユーザー名" required style="padding: 0.5rem; border-radius: 0.4rem; border: 1px solid #e2e8f0;">
+  <input type="password" name="password" placeholder="パスワード" required style="padding: 0.5rem; border-radius: 0.4rem; border: 1px solid #e2e8f0;">
+  <select name="role" style="padding: 0.5rem; border-radius: 0.4rem; border: 1px solid #e2e8f0;">
+    <option value="user">一般</option>
+    <option value="admin">管理者</option>
+  </select>
+  <button type="submit" class="btn btn-success">ユーザー追加</button>
+</form>
+<table style="width:100%; border-collapse:collapse; background:#fff;">
+  <thead>
+    <tr style="background:#f3f3f3;">
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">ID</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">ユーザー名</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">権限</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">状態</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% users.forEach(function(u) { %>
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #e2e8f0;"><%= u.id %></td>
+        <td style="padding:8px; border-bottom:1px solid #e2e8f0;">
+          <form method="POST" action="/admin/users/update-name" style="display:inline;">
+            <input type="hidden" name="id" value="<%= u.id %>">
+            <input type="text" name="username" value="<%= u.username %>" style="width:110px;">
+            <button type="submit" class="btn btn-success" style="padding:2px 8px; font-size:0.9rem;">保存</button>
+          </form>
+        </td>
+        <td style="padding:8px; border-bottom:1px solid #e2e8f0;">
+          <form method="POST" action="/admin/users/update-role" style="display:inline;">
+            <input type="hidden" name="id" value="<%= u.id %>">
+            <select name="role">
+              <option value="user" <%= !u.isAdmin ? 'selected' : '' %>>一般</option>
+              <option value="admin" <%= u.isAdmin ? 'selected' : '' %>>管理者</option>
+            </select>
+            <button type="submit" class="btn btn-success" style="padding:2px 8px; font-size:0.9rem;">保存</button>
+          </form>
+        </td>
+        <td style="padding:8px; border-bottom:1px solid #e2e8f0;">
+          <% if (u.locked) { %>
+            <form method="POST" action="/admin/users/unlock" style="display:inline;"><input type="hidden" name="id" value="<%= u.id %>"><button type="submit" class="btn btn-danger" style="padding:2px 8px; font-size:0.9rem;">アンロック</button></form>
+          <% } else { %>
+            <form method="POST" action="/admin/users/lock" style="display:inline;"><input type="hidden" name="id" value="<%= u.id %>"><button type="submit" class="btn btn-danger" style="padding:2px 8px; font-size:0.9rem;">ロック</button></form>
+          <% } %>
+        </td>
+        <td style="padding:8px; border-bottom:1px solid #e2e8f0;">
+          <form method="POST" action="/admin/users/delete" style="display:inline;" onsubmit="return confirm('本当に削除しますか？');">
+            <input type="hidden" name="id" value="<%= u.id %>">
+            <button type="submit" class="btn btn-danger" style="padding:2px 8px; font-size:0.9rem;">削除</button>
+          </form>
+          <form method="POST" action="/admin/users/update-password" style="display:inline; margin-left:6px;">
+            <input type="hidden" name="id" value="<%= u.id %>">
+            <input type="password" name="password" placeholder="新パスワード" style="width:110px;">
+            <button type="submit" class="btn btn-success" style="padding:2px 8px; font-size:0.9rem;">PW変更</button>
+          </form>
+        </td>
+      </tr>
+    <% }); %>
+  </tbody>
+</table>
+
+<!-- TODO: ユーザー情報一覧を追加 --> 

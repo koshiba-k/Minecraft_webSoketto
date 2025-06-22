@@ -1,0 +1,57 @@
+<h1 style="margin-bottom: 30px; color: #2d3748;">ユーザーごとの購入履歴</h1>
+<form method="GET" action="/admin/user-history" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+  <input type="text" name="user" placeholder="ユーザー名" value="<%= typeof userQuery !== 'undefined' ? userQuery : '' %>" list="user-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+  <datalist id="user-suggest"></datalist>
+  <input type="text" name="item" placeholder="アイテム名" value="<%= typeof itemQuery !== 'undefined' ? itemQuery : '' %>" list="item-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+  <datalist id="item-suggest"></datalist>
+  <input type="date" name="from" value="<%= typeof from !== 'undefined' ? from : '' %>" style="padding: 0.5rem 0.7rem; border-radius: 0.4rem; border: 1px solid #e2e8f0;">
+  <span style="margin: 0 0.5rem;">~</span>
+  <input type="date" name="to" value="<%= typeof to !== 'undefined' ? to : '' %>" style="padding: 0.5rem 0.7rem; border-radius: 0.4rem; border: 1px solid #e2e8f0;">
+  <button type="submit" class="btn btn-success">検索</button>
+</form>
+<table style="width:100%; border-collapse:collapse; background:#fff;">
+  <thead>
+    <tr style="background:#f3f3f3;">
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">購入日</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">ユーザー名</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">アイテム名</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">ジャンル</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">数量</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">合計金額</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (history && history.length > 0) { %>
+      <% history.forEach(function(h) { %>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= new Date(h.purchase_date).toLocaleString('ja-JP') %></td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= h.username %></td>
+          <td style="padding:8px 8px 8px 18px; border-bottom:1px solid #e2e8f0;  padding-left:40px;">
+            <img src="<%= h.imagePath %>" alt="<%= h.item_name %>" style="width:32px; height:32px; object-fit:contain; margin-right:8px; vertical-align:middle;">
+            <%= h.item_name %>
+          </td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= h.genre %></td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= h.quantity %></td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:right;"><%= h.total_price.toLocaleString() %>円</td>
+        </tr>
+      <% }); %>
+    <% } else { %>
+      <tr><td colspan="6" style="text-align:center; color:#888; padding: 2rem;">該当する履歴がありません</td></tr>
+    <% } %>
+  </tbody>
+</table>
+
+<p>ここでユーザーごとの購入履歴を検索・閲覧できるようにします。</p>
+<!-- TODO: 検索フォーム・履歴表示を追加 -->
+<script>
+// サジェスト用ユーザー名取得
+fetch('/admin/api/user-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('user-suggest');
+  datalist.innerHTML = list.map(name => `<option value=\"${name}\">`).join('');
+});
+// サジェスト用アイテム名取得
+fetch('/admin/api/item-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('item-suggest');
+  datalist.innerHTML = list.map(name => `<option value=\"${name}\">`).join('');
+});
+</script> 

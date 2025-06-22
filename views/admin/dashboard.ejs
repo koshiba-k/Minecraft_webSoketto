@@ -1,0 +1,53 @@
+<h1 style="margin-bottom: 30px; color: #2d3748;">管理者ダッシュボード</h1>
+
+<!-- 統計情報 -->
+<div class="admin-grid">
+    <div class="admin-card">
+        <h3>📊 統計情報</h3>
+        <p><strong>総アイテム数:</strong> <%= items.length %>個</p>
+        <p><strong>総購入履歴:</strong> <%= history.length %>件</p>
+        <p><strong>総売上:</strong> <%= history.reduce((sum, h) => sum + h.total_price, 0).toLocaleString() %>円</p>
+    </div>
+    
+    <div class="admin-card">
+        <h3>👥 ユーザー情報</h3>
+        <p><strong>ユーザー名:</strong> <%= user.username %></p>
+        <p><strong>権限:</strong> 管理者</p>
+        <p><strong>ログイン日時:</strong> <%= new Date().toLocaleString('ja-JP') %></p>
+    </div>
+</div>
+
+<div style="display: flex; gap: 2.2rem; margin-bottom: 3rem; justify-content: flex-end; padding: 1.2rem 0 1.2rem 0;">
+  <a href="/admin/stats" class="btn btn-success">📊 統計情報詳細</a>
+  <a href="/admin/users" class="btn btn-success">👥 ユーザー情報詳細</a>
+  <a href="/admin/balance" class="btn btn-success">ユーザー所持金</a>
+  <a href="/admin/user-history" class="btn btn-success">ユーザーごとの購入履歴</a>
+</div>
+
+<!-- ユーザー所持金一覧 -->
+<h2 style="margin-top: 40px; margin-bottom: 20px; color: #232f3e; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+    ユーザー所持金一覧
+</h2>
+<div style="background: #fafafa; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(35,47,62,0.08); margin-bottom: 2rem;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f3f3f3;">
+                <th style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: left;">ユーザー名</th>
+                <th style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">所持金</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% users.forEach(function(u) { %>
+                <tr>
+                    <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;"><%= u.username %></td>
+                    <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;"><%= u.balance.toLocaleString() %>円</td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+
+
+<div style="text-align: center; margin-top: 30px;">
+    <a href="/shop" class="btn">ショップに戻る</a>
+</div>

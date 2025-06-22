@@ -1,0 +1,173 @@
+<h1 style="margin-bottom: 30px; color: #2d3748;">購入予定リスト（カート）</h1>
+
+<% if (cartItems.length === 0) { %>
+    <div style="text-align: center; padding: 50px; color: #718096;">
+        <h3>カートが空です</h3>
+        <p><a href="/shop" class="btn">ショップに戻る</a></p>
+    </div>
+<% } else { %>
+    <div class="card">
+        <h2>カート内のアイテム</h2>
+        <div style="margin-bottom: 20px;">
+            <% cartItems.forEach(function(cartItem) { %>
+                <div class="item-card">
+                    <img src="<%= cartItem.item.imagePath %>" alt="<%= cartItem.item.name %>" class="item-image">
+                    <div>
+                        <div class="item-name"><%= cartItem.item.name %></div>
+                        <div class="item-genre">ジャンル: <%= cartItem.item.genre %></div>
+                    </div>
+                    <div style="text-align: right; margin-right: 15px;">
+                        <form class="update-quantity-form" style="display:inline;" onsubmit="return updateCartQuantity(event, <%= cartItem.itemId %>)">
+                            <div class="item-quantity">
+                                数量: <input type="number" name="quantity" value="<%= cartItem.quantity %>" min="1" style="width:60px; text-align:right;"> 
+                                <button type="submit" class="btn" style="margin-left:6px;">更新</button>
+                            </div>
+                        </form>
+                        <div class="item-total"><%= cartItem.itemTotal.toLocaleString() %>円</div>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="removeFromCart(<%= cartItem.itemId %>)">削除</button>
+                </div>
+            <% }); %>
+        </div>
+        
+        <div style="border-top: 2px solid #e2e8f0; padding-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3>合計金額: <span style="color: #48bb78; font-size: 24px;"><%= totalPrice.toLocaleString() %>円</span></h3>
+                <div style="text-align: right;">
+                    <div style="margin-bottom: 5px;">現在の所持金: <span style="font-weight: bold;"><%= user.balance.toLocaleString() %>円</span></div>
+                    <div style="color: <%= user.balance >= totalPrice ? '#48bb78' : '#e53e3e' %>; font-weight: bold;">
+                        購入後残高: <%= (user.balance - totalPrice).toLocaleString() %>円
+                    </div>
+                </div>
+            </div>
+            
+            <% if (user.balance >= totalPrice) { %>
+                <button type="button" class="btn btn-success" style="width: 100%; font-size: 18px; padding: 15px;" onclick="purchase()">購入確定</button>
+            <% } else { %>
+                <div class="error" style="text-align: center; margin-bottom: 15px;">
+                    所持金が不足しています。アイテムを削除するか、数量を減らしてください。
+                </div>
+                <button type="button" class="btn" style="width: 100%; font-size: 18px; padding: 15px;" disabled>購入確定</button>
+            <% } %>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="/shop" class="btn">ショップに戻る</a>
+    </div>
+<% } %>
+
+<style>
+.card {
+  background: #f7fafc;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(66,153,225,0.08);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+.item-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(66,153,225,0.06);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  border-left: 6px solid #4299e1;
+}
+.item-image {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  margin-right: 20px;
+  background: #edf2f7;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+.item-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #2b6cb0;
+  margin-bottom: 4px;
+}
+.item-genre {
+  color: #718096;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+.item-quantity {
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+.item-total {
+  color: #38a169;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.btn-danger {
+  background: #e53e3e;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-left: 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-danger:hover {
+  background: #c53030;
+}
+</style>
+
+<script>
+function updateCartQuantity(event, itemId) {
+  event.preventDefault();
+  const form = event.target;
+  const quantity = form.quantity.value;
+  fetch('/shop/update-cart-quantity', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ itemId, quantity })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showPopup('数量を更新しました');
+      setTimeout(() => location.reload(), 500);
+    } else {
+      showPopup('更新に失敗しました');
+    }
+  });
+  return false;
+}
+
+function purchase() {
+  // すべての数量inputを取得し、サーバーに反映してから購入
+  const forms = document.querySelectorAll('.update-quantity-form');
+  const updates = [];
+  forms.forEach(form => {
+    const itemId = form.getAttribute('onsubmit').match(/,\s*(\d+)\)/)[1];
+    const quantity = form.quantity.value;
+    updates.push(fetch('/shop/update-cart-quantity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ itemId, quantity })
+    }));
+  });
+  Promise.all(updates).then(() => {
+    fetch('/shop/purchase', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showPopup('購入が完了しました');
+        setTimeout(() => location.reload(), 800);
+      } else {
+        showPopup(data.error || '購入に失敗しました');
+      }
+    });
+  });
+}
+</script> 

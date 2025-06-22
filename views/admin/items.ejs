@@ -1,0 +1,67 @@
+<h1 style="margin-bottom: 30px; color: #2d3748;">アイテム価格管理</h1>
+
+<form method="GET" action="/admin/items" style="margin-bottom: 2rem; display: flex; gap: 1rem; align-items: center;">
+  <input type="text" name="search" placeholder="アイテム名で検索" value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>" list="item-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+  <datalist id="item-suggest"></datalist>
+  <button type="submit" class="btn btn-success">検索</button>
+</form>
+<script>
+// サジェスト用アイテム名取得
+fetch('/shop/api/item-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('item-suggest');
+  datalist.innerHTML = list.map(name => `<option value="${name}">`).join('');
+});
+</script>
+
+<div class="grid">
+    <% items.forEach(function(item) { %>
+        <div class="item-card">
+            <img src="<%= item.imagePath %>" alt="<%= item.name %>" class="item-image">
+            <div class="item-name"><%= item.name %></div>
+            <div style="color: #718096; font-size: 0.875rem; margin-bottom: 0.5rem;"><%= item.genre %></div>
+            <div class="item-price">現在: <%= item.price.toLocaleString() %>円</div>
+            <div class="quantity-controls">
+                <label style="font-size: 0.875rem; color: #4a5568;">新価格:</label>
+                <input type="number" id="new-price-<%= item.id %>" class="quantity-input" value="<%= item.price %>" min="0" style="width: 80px;">
+            </div>
+            <button type="button" class="btn btn-success" onclick="updateItemPrice(<%= item.id %>)">価格更新</button>
+        </div>
+    <% }); %>
+</div>
+
+<script>
+    // 価格更新関数
+    function updateItemPrice(itemId) {
+        const newPrice = document.getElementById('new-price-' + itemId).value;
+        if (!newPrice || newPrice < 0) {
+            alert('有効な価格を入力してください');
+            return;
+        }
+        if (!confirm('価格を更新しますか？')) {
+            return;
+        }
+        fetch('/admin/update-price', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                itemId: itemId,
+                newPrice: parseInt(newPrice)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('価格を更新しました！');
+                location.reload();
+            } else {
+                alert('エラー: ' + (data.error || '価格更新に失敗しました'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('エラーが発生しました');
+        });
+    }
+</script> 

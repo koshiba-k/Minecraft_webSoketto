@@ -1,0 +1,40 @@
+<h1 style="margin-bottom: 30px; color: #2d3748;">ユーザー所持金管理</h1>
+<form method="GET" action="/admin/balance" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
+  <input type="text" name="q" placeholder="ユーザー名で検索" value="<%= typeof query !== 'undefined' ? query : '' %>" list="user-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+  <datalist id="user-suggest"></datalist>
+  <button type="submit" class="btn btn-success">検索</button>
+</form>
+<script>
+// サジェスト用ユーザー名取得
+fetch('/admin/api/user-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('user-suggest');
+  datalist.innerHTML = list.map(name => `<option value=\"${name}\">`).join('');
+});
+</script>
+<table style="width:100%; border-collapse:collapse; background:#fff;">
+  <thead>
+    <tr style="background:#f3f3f3;">
+      <th style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0;">ID</th>
+      <th style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0;">ユーザー名</th>
+      <th style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0;">所持金</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% users.forEach(function(u) { %>
+      <tr>
+        <td style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= u.id %></td>
+        <td style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= u.username %></td>
+        <td style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0; text-align:center;">
+          <form method="POST" action="/admin/balance/update" style="display:inline;">
+            <input type="hidden" name="id" value="<%= u.id %>">
+            <input type="number" name="balance" value="<%= u.balance %>" style="width:110px; text-align:right;">
+            <button type="submit" class="btn btn-success" style="padding:2px 8px; font-size:0.9rem;">保存</button>
+          </form>
+        </td>
+      </tr>
+    <% }); %>
+  </tbody>
+</table>
+
+<p>ここでユーザーの所持金を閲覧・編集できるようにします。</p>
+<!-- TODO: 所持金編集UIを追加 --> 

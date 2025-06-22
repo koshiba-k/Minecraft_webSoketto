@@ -1,0 +1,37 @@
+<h1 style="margin-bottom: 30px; color: #232f3e;">ウィッシュリスト</h1>
+<% if (wishlist.length === 0) { %>
+  <div style="text-align: center; padding: 50px; color: #888;">
+    <h3>ウィッシュリストにアイテムがありません</h3>
+    <p><a href="/shop" class="btn">ショップに戻る</a></p>
+  </div>
+<% } else { %>
+  <div class="grid">
+    <% wishlist.forEach(function(item) { %>
+      <div class="item-card">
+        <img src="<%= item.imagePath %>" alt="<%= item.name %>" class="item-image">
+        <div class="item-name"><%= item.name %></div>
+        <div class="item-price"><%= item.price.toLocaleString() %>円</div>
+        <div style="margin-bottom: 8px;"><button class="btn btn-success" onclick="addToCart(<%= item.item_id %>)">カートに追加</button></div>
+        <button class="btn btn-danger" onclick="removeFromWishlist(<%= item.item_id %>)">ウィッシュリストから削除</button>
+      </div>
+    <% }); %>
+  </div>
+<% } %>
+<script>
+function removeFromWishlist(itemId) {
+  fetch('/shop/wishlist/remove', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ itemId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showPopup('ウィッシュリストから削除しました');
+      setTimeout(() => location.reload(), 800);
+    } else {
+      showPopup('削除に失敗しました');
+    }
+  });
+}
+</script> 
