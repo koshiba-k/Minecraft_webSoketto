@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 
 // ログインページ表示
 router.get('/login', (req, res) => {
-  res.render('auth/login', { error: null });
+  res.render('auth/login', { error: null, layout: false });
 });
 
 // ログイン処理
@@ -14,14 +14,14 @@ router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     
     if (!username || !password) {
-      return res.render('auth/login', { error: 'ユーザー名とパスワードを入力してください' });
+      return res.render('auth/login', { error: 'ユーザー名とパスワードを入力してください', layout: false });
     }
 
     const user = await User.findByUsername(username);
     let valid = false;
     if (user) {
       if (user.locked) {
-        return res.render('auth/login', { error: 'アカウントがロックされています' });
+        return res.render('auth/login', { error: 'アカウントがロックされています', layout: false });
       }
       try {
         valid = await bcrypt.compare(password, user.password);
@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
       }
     }
     if (!user || !valid) {
-      return res.render('auth/login', { error: 'ユーザー名またはパスワードが正しくありません' });
+      return res.render('auth/login', { error: 'ユーザー名またはパスワードが正しくありません', layout: false });
     }
 
     req.session.user = {
@@ -48,7 +48,7 @@ router.post('/login', async (req, res) => {
     }
   } catch (error) {
     console.error('ログインエラー:', error);
-    res.render('auth/login', { error: 'ログイン中にエラーが発生しました' });
+    res.render('auth/login', { error: 'ログイン中にエラーが発生しました', layout: false });
   }
 });
 

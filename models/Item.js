@@ -65,6 +65,38 @@ class Item {
       throw error;
     }
   }
+
+  static async getFiltered({ genre, search, is_active }) {
+    try {
+      let sql = 'SELECT * FROM items WHERE 1=1';
+      let params = [];
+      if (genre) {
+        sql += ' AND genre = ?';
+        params.push(genre);
+      }
+      if (typeof is_active !== 'undefined' && is_active !== '') {
+        sql += ' AND is_active = ?';
+        params.push(is_active);
+      }
+      if (search) {
+        sql += ' AND name LIKE ?';
+        params.push(`%${search}%`);
+      }
+      sql += ' ORDER BY genre, name';
+      const [rows] = await db.execute(sql, params);
+      return rows;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async updateActive(id, isActive) {
+    try {
+      await db.execute('UPDATE items SET is_active = ? WHERE id = ?', [isActive, id]);
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 module.exports = Item; 

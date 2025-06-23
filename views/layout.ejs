@@ -13,20 +13,18 @@
             <div class="logo">Minecraftアイテムショップ</div>
             <ul class="nav-links">
                 <% if (typeof user !== 'undefined' && user) { %>
-                    <li><a href="/shop">ショップ</a></li>
-                    <li><a href="/shop/cart">カート</a></li>
-                    <li><a href="/shop/history">購入履歴</a></li>
                     <% if (user.is_admin) { %>
-                        <li><a href="/admin">管理者</a></li>
+                        <li><a href="/admin"><img src="/images/1.png" class="nav-icon"> 管理者</a></li>
                     <% } %>
                     <% if (typeof user !== 'undefined' && user && user.isAdmin) { %>
-                        <li><a href="/admin">管理者ダッシュボードへ戻る</a></li>
+                        <li><a href="/admin"><img src="/images/1.png" class="nav-icon"> 管理者ダッシュボード</a></li>
                     <% } %>
-                    <li><a href="/shop/wishlist">ウィッシュリスト</a></li>
-                    <li>
-                        <span>所持金: <%= user.balance.toLocaleString() %>円</span>
-                        <a href="/auth/logout">ログアウト</a>
-                    </li>
+                    <li><a href="/shop"><img src="/images/2.png" class="nav-icon"> ショップ</a></li>
+                    <li><a href="/shop/cart"><img src="/images/3.png" class="nav-icon"> カート</a></li>
+                    <li><a href="/shop/wishlist"><img src="/images/4.png" class="nav-icon"> ウィッシュリスト</a></li>
+                    <li><a href="/shop/history"><img src="/images/5.png" class="nav-icon"> 購入履歴</a></li>
+                    <li><img src="/images/6.png" class="nav-icon"> <span>所持金: <%= user.balance.toLocaleString() %>円</span></li>
+                    <li><a href="/auth/logout"><img src="/images/7.png" class="nav-icon"> ログアウト</a></li>
                 <% } else { %>
                     <li><a href="/auth/login">ログイン</a></li>
                 <% } %>
@@ -142,166 +140,5 @@
             });
         }
     </script>
-
-    <style>
-    body {
-        padding-top: 90px;
-        background: #f3f3f3;
-        font-family: 'Segoe UI', 'Meiryo', Arial, sans-serif;
-    }
-    .main-nav {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        padding: 0.75rem 2.5rem 0.75rem 0.5rem;
-        gap: 0;
-        width: 100%;
-    }
-    .logo {
-        font-size: 1.7rem;
-        font-weight: bold;
-        color: #ff9900;
-        letter-spacing: 1px;
-        margin-right: 3.5rem;
-        flex-shrink: 0;
-        min-width: 260px;
-        text-align: left;
-    }
-    .nav-links {
-        list-style: none;
-        display: flex;
-        gap: 2.2rem;
-        margin: 0;
-        flex: 1;
-        justify-content: flex-end;
-        align-items: center;
-    }
-    .nav-links li {
-        display: inline-block;
-        vertical-align: middle;
-        white-space: nowrap;
-    }
-    .nav-links li a, .nav-links li span {
-        color: #fff;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 1rem;
-        transition: color 0.2s;
-    }
-    .nav-links li a:hover {
-        color: #ff9900;
-    }
-    .container {
-        max-width: 1600px;
-        margin: 0 auto;
-        background: #fff;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 8px rgba(35,47,62,0.08);
-        padding: 2rem 1.5rem 2rem 1.5rem;
-    }
-    .grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 24px;
-    }
-    .item-card {
-        background: #fff;
-        border-radius: 0.5rem;
-        box-shadow: 0 1px 4px rgba(35,47,62,0.08);
-        padding: 0.8rem 1rem;
-        margin-bottom: 0;
-        border: 1px solid #eee;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-width: 0;
-        min-height: 0;
-    }
-    .item-image {
-        width: 51px;
-        height: 51px;
-        object-fit: contain;
-        margin-bottom: 10px;
-        background: #fafafa;
-        border-radius: 0.3rem;
-        border: 1px solid #e2e8f0;
-    }
-    .item-name {
-        font-weight: bold;
-        font-size: 0.88rem;
-        color: #232f3e;
-        margin-bottom: 2px;
-        text-align: center;
-    }
-    .item-price {
-        color: #b12704;
-        font-size: 0.95rem;
-        font-weight: bold;
-        margin-bottom: 6px;
-        text-align: center;
-    }
-    .quantity-controls {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        margin-bottom: 8px;
-    }
-    .quantity-input {
-        width: 48px;
-        font-size: 0.95rem;
-        padding: 2px 4px;
-        text-align: center;
-    }
-    .btn, .btn-success {
-        background: #ffb347;
-        color: #232f3e;
-        border: none;
-        border-radius: 0.5rem;
-        padding: 0.35rem 0.8rem;
-        font-weight: bold;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: background 0.2s, color 0.2s;
-    }
-    .btn:hover, .btn-success:hover {
-        background: #ffd580;
-        color: #232f3e;
-    }
-    .btn-danger {
-        background: #e53e3e;
-        color: #fff;
-        border: none;
-        border-radius: 0.5rem;
-        padding: 0.5rem 1rem;
-        margin-left: 20px;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-    .btn-danger:hover {
-        background: #c53030;
-    }
-    .custom-popup {
-        position: fixed;
-        top: 80px;
-        left: 50%;
-        transform: translateX(-50%) scale(0.95);
-        background: #232f3e;
-        color: #ff9900;
-        padding: 16px 32px;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: bold;
-        box-shadow: 0 4px 16px rgba(35,47,62,0.18);
-        opacity: 0;
-        z-index: 2000;
-        transition: opacity 0.2s, transform 0.2s;
-        pointer-events: none;
-    }
-    .custom-popup.show {
-        opacity: 1;
-        transform: translateX(-50%) scale(1);
-    }
-    </style>
 </body>
 </html> 

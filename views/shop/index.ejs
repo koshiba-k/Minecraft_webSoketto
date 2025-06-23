@@ -20,26 +20,6 @@
       <% } else { %>
         <option value="price_desc">価格が高い順</option>
       <% } %>
-      <% if (sort === 'newest') { %>
-        <option value="newest" selected>新着順</option>
-      <% } else { %>
-        <option value="newest">新着順</option>
-      <% } %>
-      <% if (sort === 'oldest') { %>
-        <option value="oldest" selected>古い順</option>
-      <% } else { %>
-        <option value="oldest">古い順</option>
-      <% } %>
-      <% if (sort === 'name_asc') { %>
-        <option value="name_asc" selected>名前順（A→Z）</option>
-      <% } else { %>
-        <option value="name_asc">名前順（A→Z）</option>
-      <% } %>
-      <% if (sort === 'name_desc') { %>
-        <option value="name_desc" selected>名前順（Z→A）</option>
-      <% } else { %>
-        <option value="name_desc">名前順（Z→A）</option>
-      <% } %>
     </select>
     <button type="submit" class="btn">検索</button>
     <% if (searchTerm) { %>

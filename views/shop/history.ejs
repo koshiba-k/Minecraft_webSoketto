@@ -1,38 +1,61 @@
 <h1 style="margin-bottom: 30px; color: #2d3748;">購入履歴</h1>
 
-<% if (history.length === 0) { %>
-    <div style="text-align: center; padding: 50px; color: #718096;">
-        <h3>購入履歴がありません</h3>
-        <p><a href="/shop" class="btn">ショップに戻る</a></p>
-    </div>
-<% } else { %>
-    <div class="card">
-        <h2>購入履歴一覧</h2>
-        <div style="margin-bottom: 20px;">
-            <% history.forEach(function(purchase) { %>
-                <div style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #e2e8f0;">
-                    <img src="<%= purchase.imagePath %>" alt="<%= purchase.item_name %>" style="width: 60px; height: 60px; object-fit: contain; margin-right: 15px;">
-                    <div style="flex: 1;">
-                        <div style="font-weight: bold; margin-bottom: 5px;"><%= purchase.item_name %></div>
-                        <div style="color: #718096; font-size: 14px;">ジャンル: <%= purchase.genre %></div>
-                        <div style="color: #718096; font-size: 12px;">購入日: <%= new Date(purchase.purchase_date).toLocaleString('ja-JP') %></div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-weight: bold; margin-bottom: 5px;">数量: <%= purchase.quantity %></div>
-                        <div style="color: #48bb78; font-weight: bold;"><%= purchase.total_price.toLocaleString() %>円</div>
-                        <button class="btn btn-success" style="margin-top: 6px;" onclick="reorder(<%= purchase.item_id %>, <%= purchase.quantity %>)">再購入</button>
-                    </div>
-                </div>
-            <% }); %>
-        </div>
-    </div>
-    
-    <div style="text-align: center; margin-top: 20px;">
-        <a href="/shop" class="btn">ショップに戻る</a>
-    </div>
-<% } %>
+<form method="GET" action="/shop/history" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+  <input type="text" name="item" placeholder="アイテム名" value="<%= typeof itemQuery !== 'undefined' ? itemQuery : '' %>" list="item-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+  <datalist id="item-suggest"></datalist>
+  <select name="genre" class="sort-select" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+    <option value="">ジャンルで絞り込み</option>
+    <% if (genres && genresDisplay) { for (let i = 0; i < genres.length; i++) { %>
+      <option value="<%= genres[i] %>" <%= selectedGenre === genres[i] ? 'selected' : '' %>><%= genresDisplay[i] %></option>
+    <% } } %>
+  </select>
+  <input type="date" name="from" value="<%= typeof from !== 'undefined' ? from : '' %>" style="padding: 0.5rem 0.7rem; border-radius: 0.4rem; border: 1px solid #e2e8f0;">
+  <span style="margin: 0 0.5rem;">~</span>
+  <input type="date" name="to" value="<%= typeof to !== 'undefined' ? to : '' %>" style="padding: 0.5rem 0.7rem; border-radius: 0.4rem; border: 1px solid #e2e8f0;">
+  <button type="submit" class="btn btn-success">検索</button>
+</form>
+
+<table style="width:100%; border-collapse:collapse; background:#fff;">
+  <thead>
+    <tr style="background:#f3f3f3;">
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">購入日</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">アイテム名</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">ジャンル</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">数量</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">合計金額</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">カート</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (history && history.length > 0) { %>
+      <% history.forEach(function(h) { %>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= new Date(h.purchase_date).toLocaleString('ja-JP') %></td>
+          <td style="padding:8px 8px 8px 18px; border-bottom:1px solid #e2e8f0;  padding-left:40px;">
+            <img src="<%= h.imagePath %>" alt="<%= h.item_name %>" style="width:32px; height:32px; object-fit:contain; margin-right:8px; vertical-align:middle;">
+            <%= h.item_name %>
+          </td>
+          <% let genreDisp = h.genre.replace(/^\d+/, '');
+             if (genreDisp === '食べ物植物') genreDisp = '食べ物・植物';
+             if (genreDisp === '武器装備') genreDisp = '武器・装備'; %>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= genreDisp %></td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= h.quantity %></td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:right;"><%= h.total_price.toLocaleString() %>円</td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><button class="btn btn-success" onclick="reorder(<%= h.item_id %>, <%= h.quantity %>)">カートに追加</button></td>
+        </tr>
+      <% }); %>
+    <% } else { %>
+      <tr><td colspan="6" style="text-align:center; color:#888; padding: 2rem;">該当する履歴がありません</td></tr>
+    <% } %>
+  </tbody>
+</table>
 
 <script>
+// サジェスト用アイテム名取得
+fetch('/shop/api/item-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('item-suggest');
+  datalist.innerHTML = list.map(name => `<option value="${name}">`).join('');
+});
 function reorder(itemId, quantity) {
   fetch('/shop/add-to-cart', {
     method: 'POST',

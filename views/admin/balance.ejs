@@ -1,6 +1,6 @@
-<h1 style="margin-bottom: 30px; color: #2d3748;">ユーザー所持金管理</h1>
-<form method="GET" action="/admin/balance" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
-  <input type="text" name="q" placeholder="ユーザー名で検索" value="<%= typeof query !== 'undefined' ? query : '' %>" list="user-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+<h1 class="admin-title">ユーザー所持金管理</h1>
+<form method="GET" action="/admin/balance" class="admin-search-form">
+  <input type="text" name="q" placeholder="ユーザー名で検索" value="<%= typeof query !== 'undefined' ? query : '' %>" list="user-suggest" class="admin-search-input">
   <datalist id="user-suggest"></datalist>
   <button type="submit" class="btn btn-success">検索</button>
 </form>
@@ -11,24 +11,24 @@ fetch('/admin/api/user-names').then(res => res.json()).then(list => {
   datalist.innerHTML = list.map(name => `<option value=\"${name}\">`).join('');
 });
 </script>
-<table style="width:100%; border-collapse:collapse; background:#fff;">
+<table class="admin-balance-table">
   <thead>
-    <tr style="background:#f3f3f3;">
-      <th style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0;">ID</th>
-      <th style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0;">ユーザー名</th>
-      <th style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0;">所持金</th>
+    <tr class="admin-balance-table-header">
+      <th class="admin-balance-th">ID</th>
+      <th class="admin-balance-th">ユーザー名</th>
+      <th class="admin-balance-th">所持金</th>
     </tr>
   </thead>
   <tbody>
     <% users.forEach(function(u) { %>
       <tr>
-        <td style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= u.id %></td>
-        <td style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= u.username %></td>
-        <td style="padding:8px 8px 8px 16px; border-bottom:1px solid #e2e8f0; text-align:center;">
-          <form method="POST" action="/admin/balance/update" style="display:inline;">
+        <td class="admin-balance-td admin-balance-td-center"><%= u.id %></td>
+        <td class="admin-balance-td admin-balance-td-center"><%= u.username %></td>
+        <td class="admin-balance-td admin-balance-td-center">
+          <form method="POST" action="/admin/balance/update" class="admin-inline-form">
             <input type="hidden" name="id" value="<%= u.id %>">
-            <input type="number" name="balance" value="<%= u.balance %>" style="width:110px; text-align:right;">
-            <button type="submit" class="btn btn-success" style="padding:2px 8px; font-size:0.9rem;">保存</button>
+            <input type="number" name="balance" value="<%= u.balance %>" class="admin-inline-input admin-balance-input">
+            <button type="submit" class="btn btn-success admin-inline-btn">保存</button>
           </form>
         </td>
       </tr>

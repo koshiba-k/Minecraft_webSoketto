@@ -1,67 +1,132 @@
-<h1 style="margin-bottom: 30px; color: #2d3748;">アイテム価格管理</h1>
+<h1 class="admin-title">アイテム価格管理</h1>
 
-<form method="GET" action="/admin/items" style="margin-bottom: 2rem; display: flex; gap: 1rem; align-items: center;">
-  <input type="text" name="search" placeholder="アイテム名で検索" value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>" list="item-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+<form method="GET" action="/admin/items" class="admin-search-form">
+  <input type="text" name="search" placeholder="アイテム名で検索" value="<%= typeof searchTerm !== 'undefined' ? searchTerm : '' %>" list="item-suggest" class="admin-search-input">
   <datalist id="item-suggest"></datalist>
+  <select name="genre" class="admin-add-user-select">
+    <option value="">すべてのカテゴリー</option>
+    <% if (genres && genresDisplay) { %>
+      <% for (let i = 0; i < genres.length; i++) { %>
+        <option value="<%= genres[i] %>" <%= selectedGenre === genres[i] ? 'selected' : '' %>><%= genresDisplay[i] %></option>
+      <% } %>
+    <% } %>
+  </select>
+  <select name="is_active" class="admin-add-user-select">
+    <option value="">販売状態: すべて</option>
+    <option value="1" <%= selectedActive == 1 ? 'selected' : '' %>>販売中</option>
+    <option value="0" <%= selectedActive == 0 ? 'selected' : '' %>>販売停止</option>
+  </select>
   <button type="submit" class="btn btn-success">検索</button>
 </form>
-<script>
-// サジェスト用アイテム名取得
-fetch('/shop/api/item-names').then(res => res.json()).then(list => {
-  const datalist = document.getElementById('item-suggest');
-  datalist.innerHTML = list.map(name => `<option value="${name}">`).join('');
-});
-</script>
+
+<% const genresEscaped = genres.map(g => encodeURIComponent(g)); %>
+<div class="genre-filter">
+  <a href="/admin/items" class="genre-btn <%= !selectedGenre ? 'active' : '' %>">すべて</a>
+  <% if (genres && genresDisplay) { %>
+    <% for (let i = 0; i < genres.length; i++) { %>
+      <a href="/admin/items?genre=<%= genresEscaped[i] %><%= selectedActive !== undefined && selectedActive !== '' ? '&is_active=' + selectedActive : '' %>" class="genre-btn<%= selectedGenre === genres[i] ? ' active' : '' %>"><%= genresDisplay[i] %></a>
+    <% } %>
+  <% } %>
+</div>
+<div class="genre-filter" style="margin-bottom: 1.5rem;">
+  <a href="/admin/items?<%= selectedGenre ? 'genre=' + encodeURIComponent(selectedGenre) + '&' : '' %>" class="genre-btn <%= !selectedActive && selectedActive !== 0 ? 'active' : '' %>">すべて</a>
+  <a href="/admin/items?<%= selectedGenre ? 'genre=' + encodeURIComponent(selectedGenre) + '&' : '' %>is_active=1" class="genre-btn <%= selectedActive == 1 ? 'active' : '' %>">販売中</a>
+  <a href="/admin/items?<%= selectedGenre ? 'genre=' + encodeURIComponent(selectedGenre) + '&' : '' %>is_active=0" class="genre-btn <%= selectedActive == 0 ? 'active' : '' %>">販売停止</a>
+</div>
 
 <div class="grid">
     <% items.forEach(function(item) { %>
         <div class="item-card">
             <img src="<%= item.imagePath %>" alt="<%= item.name %>" class="item-image">
             <div class="item-name"><%= item.name %></div>
-            <div style="color: #718096; font-size: 0.875rem; margin-bottom: 0.5rem;"><%= item.genre %></div>
+            <div style="color: #718096; font-size: 0.875rem; margin-bottom: 0.5rem;">
+              <% let genreDisp = item.genre.replace(/^\d+/, '');
+                 if (genreDisp === '食べ物植物') genreDisp = '食べ物・植物';
+                 if (genreDisp === '武器装備') genreDisp = '武器・装備'; %>
+              <%= genreDisp %>
+            </div>
             <div class="item-price">現在: <%= item.price.toLocaleString() %>円</div>
             <div class="quantity-controls">
                 <label style="font-size: 0.875rem; color: #4a5568;">新価格:</label>
                 <input type="number" id="new-price-<%= item.id %>" class="quantity-input" value="<%= item.price %>" min="0" style="width: 80px;">
             </div>
             <button type="button" class="btn btn-success" onclick="updateItemPrice(<%= item.id %>)">価格更新</button>
+            <div style="margin-top: 0.5rem;">
+              <% if (item.is_active == 1) { %>
+                <button type="button" class="btn btn-danger" onclick="toggleActive(<%= item.id %>, 0)">販売停止</button>
+                <span style="color: #48bb78; font-size: 0.95rem; margin-left: 8px;">販売中</span>
+              <% } else { %>
+                <button type="button" class="btn btn-success" onclick="toggleActive(<%= item.id %>, 1)">販売再開</button>
+                <span style="color: #e53e3e; font-size: 0.95rem; margin-left: 8px;">販売停止中</span>
+              <% } %>
+            </div>
         </div>
     <% }); %>
 </div>
 
 <script>
-    // 価格更新関数
-    function updateItemPrice(itemId) {
-        const newPrice = document.getElementById('new-price-' + itemId).value;
-        if (!newPrice || newPrice < 0) {
-            alert('有効な価格を入力してください');
-            return;
-        }
-        if (!confirm('価格を更新しますか？')) {
-            return;
-        }
-        fetch('/admin/update-price', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                itemId: itemId,
-                newPrice: parseInt(newPrice)
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('価格を更新しました！');
-                location.reload();
-            } else {
-                alert('エラー: ' + (data.error || '価格更新に失敗しました'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('エラーが発生しました');
-        });
+// サジェスト用アイテム名取得
+fetch('/shop/api/item-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('item-suggest');
+  datalist.innerHTML = list.map(name => `<option value="${name}">`).join('');
+});
+
+// 価格更新関数
+function updateItemPrice(itemId) {
+    const newPrice = document.getElementById('new-price-' + itemId).value;
+    if (!newPrice || newPrice < 0) {
+        alert('有効な価格を入力してください');
+        return;
     }
+    if (!confirm('価格を更新しますか？')) {
+        return;
+    }
+    fetch('/admin/update-price', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            itemId: itemId,
+            newPrice: parseInt(newPrice)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('価格を更新しました！');
+            location.reload();
+        } else {
+            alert('エラー: ' + (data.error || '価格更新に失敗しました'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('エラーが発生しました');
+    });
+}
+
+// 販売状態切り替え関数
+function toggleActive(itemId, isActive) {
+    const msg = isActive ? '販売を再開しますか？' : '販売を停止しますか？';
+    if (!confirm(msg)) return;
+    fetch('/admin/toggle-active', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId, isActive })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('販売状態を変更しました');
+            location.reload();
+        } else {
+            alert('エラー: ' + (data.error || '販売状態変更に失敗しました'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('エラーが発生しました');
+    });
+}
 </script> 

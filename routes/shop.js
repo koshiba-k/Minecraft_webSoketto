@@ -8,9 +8,14 @@ const Wishlist = require('../models/Wishlist');
 const db = require('../config/database');
 
 // 認証ミドルウェア
-const requireAuth = (req, res, next) => {
+const requireAuth = async (req, res, next) => {
   if (!req.session.user) {
     return res.redirect('/auth/login');
+  }
+  // 最新のユーザー情報でセッションを更新
+  const user = await User.findById(req.session.user.id);
+  if (user) {
+    req.session.user.balance = user.balance;
   }
   next();
 };
@@ -30,8 +35,13 @@ const manualGenres = [
   'その他'
 ];
 
-// 表示用ジャンル名リスト（数字を除去）
-const manualGenresDisplay = manualGenres.map(g => g.replace(/^\d+/, ''));
+// 表示用ジャンル名リスト（数字を除去＋特定ジャンル名を変換）
+const manualGenresDisplay = manualGenres.map(g => {
+  let name = g.replace(/^\d+/, '');
+  if (name === '食べ物植物') name = '食べ物・植物';
+  if (name === '武器装備') name = '武器・装備';
+  return name;
+});
 
 // ショップページ
 router.get('/', requireAuth, async (req, res) => {
@@ -215,15 +225,38 @@ router.post('/purchase', requireAuth, async (req, res) => {
 // 購入履歴
 router.get('/history', requireAuth, async (req, res) => {
   try {
+    const { genre, from, to } = req.query;
     let history = await PurchaseHistory.getByUserId(req.session.user.id);
+    // 検索フィルタ
+    if (genre) {
+      history = history.filter(h => h.genre === genre);
+    }
+    if (from) {
+      const fromDate = new Date(from);
+      history = history.filter(h => new Date(h.purchase_date) >= fromDate);
+    }
+    if (to) {
+      const toDate = new Date(to);
+      history = history.filter(h => new Date(h.purchase_date) <= toDate);
+    }
     // 画像パスを付与
     history = history.map(purchase => ({
       ...purchase,
       imagePath: findImageFile(purchase.item_name, purchase.genre)
     }));
+    // ジャンルリスト・表示用ジャンル名
+    const genres = manualGenres;
+    const genresDisplay = manualGenresDisplay;
+    const genresEscaped = genres.map(g => encodeURIComponent(g));
     res.render('shop/history', {
       user: req.session.user,
-      history
+      history,
+      genres,
+      genresDisplay,
+      genresEscaped,
+      selectedGenre: genre,
+      from,
+      to
     });
   } catch (error) {
     console.error('購入履歴エラー:', error);

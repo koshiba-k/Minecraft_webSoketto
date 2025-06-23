@@ -11,7 +11,12 @@
         <img src="<%= item.imagePath %>" alt="<%= item.name %>" class="item-image">
         <div class="item-name"><%= item.name %></div>
         <div class="item-price"><%= item.price.toLocaleString() %>円</div>
-        <div style="margin-bottom: 8px;"><button class="btn btn-success" onclick="addToCart(<%= item.item_id %>)">カートに追加</button></div>
+        <div class="quantity-controls" style="margin-bottom: 8px;">
+          <button type="button" class="quantity-btn" onclick="changeWishlistQty(<%= item.item_id %>, -1)">-</button>
+          <input type="number" id="wishlist-qty-<%= item.item_id %>" class="quantity-input" value="1" min="1" style="width:60px;text-align:center;">
+          <button type="button" class="quantity-btn" onclick="changeWishlistQty(<%= item.item_id %>, 1)">+</button>
+        </div>
+        <div style="margin-bottom: 8px;"><button class="btn btn-success" onclick="addWishlistToCart(<%= item.item_id %>)">カートに追加</button></div>
         <button class="btn btn-danger" onclick="removeFromWishlist(<%= item.item_id %>)">ウィッシュリストから削除</button>
       </div>
     <% }); %>
@@ -31,6 +36,28 @@ function removeFromWishlist(itemId) {
       setTimeout(() => location.reload(), 800);
     } else {
       showPopup('削除に失敗しました');
+    }
+  });
+}
+function changeWishlistQty(itemId, diff) {
+  const input = document.getElementById('wishlist-qty-' + itemId);
+  let val = parseInt(input.value) + diff;
+  if (val < 1) val = 1;
+  input.value = val;
+}
+function addWishlistToCart(itemId) {
+  const qty = document.getElementById('wishlist-qty-' + itemId).value;
+  fetch('/shop/add-to-cart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ itemId, quantity: qty })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      showPopup('カートに追加しました！');
+    } else {
+      showPopup('追加に失敗しました');
     }
   });
 }

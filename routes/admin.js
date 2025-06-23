@@ -78,64 +78,33 @@ router.post('/update-price', requireAdmin, async (req, res) => {
 // アイテム価格管理ページ
 router.get('/items', requireAdmin, async (req, res) => {
   try {
-    const { genre, search } = req.query;
-    let items = [];
-    if (search) {
-      const db = require('../config/database');
-      const [rows] = await db.execute('SELECT * FROM items WHERE name LIKE ? ORDER BY name', [`%${search}%`]);
-      items = rows;
-    } else if (genre) {
-      items = await Item.getByGenre(genre);
-    } else {
-      items = await Item.getAll();
-    }
+    const { genre, search, is_active } = req.query;
+    let items = await Item.getFiltered({ genre, search, is_active });
     items = items.map(item => ({
       ...item,
       imagePath: findImageFile(item.name, item.genre)
     }));
     const genres = await Item.getGenres();
+    // ジャンル名から数字を除去し、特定ジャンル名を変換
+    const genresDisplay = genres.map(g => {
+      let name = g.replace(/^\d+/, '');
+      if (name === '食べ物植物') name = '食べ物・植物';
+      if (name === '武器装備') name = '武器・装備';
+      return name;
+    });
     res.render('admin/items', {
       user: req.session.user,
       items,
       genres,
+      genresDisplay,
       selectedGenre: genre,
-      searchTerm: search
+      searchTerm: search,
+      selectedActive: is_active
     });
   } catch (error) {
     console.error('アイテム管理ページエラー:', error);
     res.status(500).send('エラーが発生しました');
   }
-});
-
-// 統計情報詳細
-router.get('/stats', requireAdmin, async (req, res) => {
-  const itemName = req.query.item || '';
-  let chartData = null;
-  let itemImagePath = null;
-  if (itemName) {
-    // 日別購入数・累計売上データを取得
-    const db = require('../config/database');
-    const [rows] = await db.execute(`
-      SELECT DATE(ph.purchase_date) as date, COUNT(*) as count, SUM(ph.total_price) as sum
-      FROM purchase_history ph
-      JOIN items i ON ph.item_id = i.id
-      WHERE i.name LIKE ?
-      GROUP BY DATE(ph.purchase_date)
-      ORDER BY date ASC
-    `, [`%${itemName}%`]);
-    const labels = rows.map(r => r.date);
-    const purchaseCounts = rows.map(r => r.count);
-    let total = 0;
-    const salesSums = rows.map(r => (total += r.sum));
-    chartData = { labels, purchaseCounts, salesSums };
-    // アイテム画像パス
-    const [itemRow] = await db.execute('SELECT name, genre FROM items WHERE name LIKE ? LIMIT 1', [`%${itemName}%`]);
-    if (itemRow.length > 0) {
-      const { name, genre } = itemRow[0];
-      itemImagePath = findImageFile(name, genre);
-    }
-  }
-  res.render('admin/stats', { user: req.session.user, itemName, chartData, itemImagePath });
 });
 
 // ユーザー情報詳細（検索対応）
@@ -168,7 +137,7 @@ router.get('/balance', requireAdmin, async (req, res) => {
 
 // ユーザーごとの購入履歴
 router.get('/user-history', requireAdmin, async (req, res) => {
-  const { user, item, from, to } = req.query;
+  const { user, item, from, to, genre } = req.query;
   const db = require('../config/database');
   let where = [];
   let params = [];
@@ -179,6 +148,10 @@ router.get('/user-history', requireAdmin, async (req, res) => {
   if (item) {
     where.push('i.name LIKE ?');
     params.push(`%${item}%`);
+  }
+  if (genre) {
+    where.push('i.genre = ?');
+    params.push(genre);
   }
   if (from) {
     where.push('ph.purchase_date >= ?');
@@ -202,13 +175,24 @@ router.get('/user-history', requireAdmin, async (req, res) => {
     ...h,
     imagePath: findImageFile(h.item_name, h.genre)
   }));
+  // ジャンルリスト・表示用ジャンル名
+  const genres = await Item.getGenres();
+  const genresDisplay = genres.map(g => {
+    let name = g.replace(/^\d+/, '');
+    if (name === '食べ物植物') name = '食べ物・植物';
+    if (name === '武器装備') name = '武器・装備';
+    return name;
+  });
   res.render('admin/user-history', {
     user: req.session.user,
     history: historyWithImage,
     userQuery: user || '',
     itemQuery: item || '',
-    from: from || '',
-    to: to || ''
+    from,
+    to,
+    genres,
+    genresDisplay,
+    selectedGenre: genre
   });
 });
 
@@ -288,6 +272,21 @@ router.post('/users/add', requireAdmin, async (req, res) => {
   const hash = await bcrypt.hash(password, 10);
   await User.create(username, hash, role === 'admin');
   res.redirect('/admin/users');
+});
+
+// アイテム販売状態切り替え
+router.post('/toggle-active', requireAdmin, async (req, res) => {
+  try {
+    const { itemId, isActive } = req.body;
+    if (!itemId || typeof isActive === 'undefined') {
+      return res.status(400).json({ error: 'アイテムIDと状態が必要です' });
+    }
+    await Item.updateActive(itemId, isActive);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('販売状態切替エラー:', error);
+    res.status(500).json({ error: '販売状態切替中にエラーが発生しました' });
+  }
 });
 
 module.exports = router; 

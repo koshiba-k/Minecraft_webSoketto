@@ -388,4 +388,414 @@ nav {
     background: #bee3f8;
     color: #2a4365;
     border: 1px solid #90cdf4;
+}
+
+/* ---- layout.ejs から移行 ---- */
+.main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.75rem 2.5rem 0.75rem 0.5rem;
+    gap: 0;
+    width: 100%;
+}
+.logo {
+    font-size: 1.7rem;
+    font-weight: bold;
+    color: #ff9900;
+    letter-spacing: 1px;
+    margin-right: 3.5rem;
+    flex-shrink: 0;
+    min-width: 260px;
+    text-align: left;
+}
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 2.2rem;
+    margin: 0;
+    flex: 1;
+    justify-content: flex-end;
+    align-items: center;
+}
+.nav-links li {
+    display: inline-block;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.nav-links li a, .nav-links li span {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+.nav-links li a:hover {
+    color: #ff9900;
+}
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(35,47,62,0.08);
+    padding: 2rem 1.5rem 2rem 1.5rem;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+}
+.item-card {
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 4px rgba(35,47,62,0.08);
+    padding: 0.8rem 1rem;
+    margin-bottom: 0;
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0;
+    min-height: 0;
+}
+.item-image {
+    width: 51px;
+    height: 51px;
+    object-fit: contain;
+    margin-bottom: 10px;
+    background: #fafafa;
+    border-radius: 0.3rem;
+    border: 1px solid #e2e8f0;
+}
+.item-name {
+    font-weight: bold;
+    font-size: 0.88rem;
+    color: #232f3e;
+    margin-bottom: 2px;
+    text-align: center;
+}
+.item-price {
+    color: #b12704;
+    font-size: 0.95rem;
+    font-weight: bold;
+    margin-bottom: 6px;
+    text-align: center;
+}
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 8px;
+}
+.quantity-input {
+    width: 48px;
+    font-size: 0.95rem;
+    padding: 2px 4px;
+    text-align: center;
+}
+.custom-popup {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) scale(0.95);
+    background: #232f3e;
+    color: #ff9900;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    box-shadow: 0 4px 16px rgba(35,47,62,0.18);
+    opacity: 0;
+    z-index: 2000;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+.custom-popup.show {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+/* ---- ここまで ---- */
+
+/* ---- EJSインラインCSS外部化 ---- */
+.admin-title {
+  margin-bottom: 30px;
+  color: #2d3748;
+  font-size: 2rem;
+  font-weight: bold;
+}
+.admin-action-bar {
+  display: flex;
+  gap: 2.2rem;
+  margin-bottom: 3rem;
+  justify-content: flex-end;
+  padding: 1.2rem 0;
+}
+.admin-section-title {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  color: #232f3e;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 10px;
+}
+.admin-balance-list {
+  background: #fafafa;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(35,47,62,0.08);
+  margin-bottom: 2rem;
+}
+.admin-balance-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+.admin-balance-th-left {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+.admin-balance-th-right {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: right;
+}
+.admin-balance-td-left {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.admin-balance-td-right {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: right;
+}
+.admin-back-shop {
+  text-align: center;
+  margin-top: 30px;
+}
+.admin-search-form {
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.admin-search-input {
+  padding: 0.5rem 1rem;
+  border-radius: 0.4rem;
+  border: 1px solid #e2e8f0;
+  font-size: 1rem;
+}
+.admin-add-user-form {
+  margin-bottom: 2rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+.admin-add-user-input {
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid #e2e8f0;
+}
+.admin-add-user-select {
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid #e2e8f0;
+}
+.admin-user-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+.admin-user-table-header {
+  background: #f3f3f3;
+}
+.admin-user-th {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.admin-user-td {
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.admin-inline-form {
+  display: inline;
+}
+.admin-inline-input {
+  width: 110px;
+}
+.admin-inline-btn {
+  padding: 2px 8px;
+  font-size: 0.9rem;
+}
+.admin-inline-select {
+  padding: 2px 8px;
+  font-size: 0.9rem;
+}
+.admin-inline-form-pw {
+  margin-left: 6px;
+}
+.admin-balance-table-header {
+  background: #f3f3f3;
+}
+.admin-balance-th {
+  padding: 8px 8px 8px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.admin-balance-td {
+  padding: 8px 8px 8px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.admin-balance-td-center {
+  text-align: center;
+}
+.admin-balance-input {
+  width: 110px;
+  text-align: right;
+}
+.admin-item-image-block {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.admin-item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+.admin-item-name {
+  margin-top: 0.5rem;
+  color: #232f3e;
+  font-weight: bold;
+}
+.admin-chart-block {
+  max-width: 700px;
+  margin: 0 auto 2rem auto;
+}
+.cart-title {
+  margin-bottom: 30px;
+  color: #2d3748;
+}
+.cart-empty-block {
+  text-align: center;
+  padding: 50px;
+  color: #718096;
+}
+.cart-card {
+  background: #f7fafc;
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px rgba(66,153,225,0.08);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+.cart-item-list {
+  margin-bottom: 20px;
+}
+.cart-item-right {
+  text-align: right;
+  margin-right: 15px;
+}
+.cart-quantity-input {
+  width: 60px;
+  text-align: right;
+}
+.cart-update-btn {
+  margin-left: 6px;
+}
+.cart-remove-btn {
+  margin-left: 20px;
+}
+.cart-total-block {
+  border-top: 2px solid #e2e8f0;
+  padding-top: 20px;
+}
+.cart-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.cart-total-price {
+  color: #48bb78;
+  font-size: 24px;
+}
+.cart-balance-block {
+  text-align: right;
+}
+.cart-balance-now {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+.cart-balance-value {
+  font-weight: bold;
+}
+.cart-balance-after {
+  font-weight: bold;
+}
+.cart-balance-enough {
+  color: #48bb78;
+}
+.cart-balance-lack {
+  color: #e53e3e;
+}
+.cart-purchase-btn {
+  width: 100%;
+  font-size: 18px;
+  padding: 15px;
+}
+.cart-error-block {
+  text-align: center;
+  margin-bottom: 15px;
+}
+.cart-back-shop {
+  text-align: center;
+  margin-top: 20px;
+}
+/* ---- ここまで ---- */
+
+/* カートテーブル用デザイン */
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  background: #fff;
+}
+.cart-table th, .cart-table td {
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.7rem 0.5rem;
+  text-align: center;
+  vertical-align: middle;
+}
+.cart-table th {
+  background: #f3f3f3;
+  font-weight: 600;
+  color: #232f3e;
+}
+.cart-table-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 0.25rem;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+}
+.cart-purchase-btn-narrow {
+  width: 220px;
+  max-width: 100%;
+  font-size: 1.1rem;
+  padding: 12px 0;
+  margin: 0 auto;
+  display: block;
+}
+
+.nav-icon {
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: middle;
+  margin-right: 0.3em;
 } 

@@ -4,6 +4,12 @@
   <datalist id="user-suggest"></datalist>
   <input type="text" name="item" placeholder="アイテム名" value="<%= typeof itemQuery !== 'undefined' ? itemQuery : '' %>" list="item-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
   <datalist id="item-suggest"></datalist>
+  <select name="genre" class="sort-select" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+    <option value="">ジャンルで絞り込み</option>
+    <% if (genres && genresDisplay) { for (let i = 0; i < genres.length; i++) { %>
+      <option value="<%= genres[i] %>" <%= selectedGenre === genres[i] ? 'selected' : '' %>><%= genresDisplay[i] %></option>
+    <% } } %>
+  </select>
   <input type="date" name="from" value="<%= typeof from !== 'undefined' ? from : '' %>" style="padding: 0.5rem 0.7rem; border-radius: 0.4rem; border: 1px solid #e2e8f0;">
   <span style="margin: 0 0.5rem;">~</span>
   <input type="date" name="to" value="<%= typeof to !== 'undefined' ? to : '' %>" style="padding: 0.5rem 0.7rem; border-radius: 0.4rem; border: 1px solid #e2e8f0;">

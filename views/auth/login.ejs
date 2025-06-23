@@ -7,110 +7,123 @@ layout = false;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン - Minecraftアイテムショップ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        * {
+        html, body {
+            height: 100%;
+        }
+        body {
+            min-height: 100vh;
+            width: 100vw;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #333;
+            /* Minecraft草ブロック風グラデーション */
+            background: linear-gradient(to bottom, #6bbf47 0%, #6bbf47 30%, #b6a16b 30%, #b6a16b 100%);
+            font-family: 'Press Start 2P', 'Arial', sans-serif;
         }
-
-        .login-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            max-width: 400px;
+        .mc-login-box {
+            background: #222 url('/images/mc_login_bg.png') repeat;
+            border: 4px solid #3e3e3e;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px #000a, 0 1.5px 0 #fff4 inset;
+            padding: 36px 32px 28px 32px;
+            max-width: 380px;
             width: 100%;
-        }
-
-        .login-title {
             text-align: center;
-            margin-bottom: 30px;
-            color: #2d3748;
-            font-size: 24px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #4a5568;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #4299e1;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            background: #4299e1;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .btn:hover {
-            background: #3182ce;
-        }
-
-        .error {
-            color: #e53e3e;
-            background: #fed7d7;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .info {
-            margin-top: 20px;
-            text-align: center;
-            color: #718096;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .password-wrapper {
             position: relative;
-            display: flex;
-            align-items: center;
+            z-index: 1;
         }
-        .password-wrapper input[type="password"],
-        .password-wrapper input[type="text"] {
+        .mc-logo {
+            display: block;
+            margin: 0 auto 18px auto;
+            width: 80px;
+            height: 80px;
+            image-rendering: pixelated;
+        }
+        .mc-title {
+            font-family: 'Press Start 2P', 'Arial', sans-serif;
+            color: #fff;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            margin-bottom: 28px;
+            text-shadow: 2px 2px 0 #000, 0 0 8px #6bbf47;
+        }
+        .mc-form-group {
+            margin-bottom: 22px;
+            text-align: left;
+        }
+        .mc-form-group label {
+            color: #e0e0e0;
+            font-size: 0.8rem;
+            margin-bottom: 7px;
+            display: block;
+            letter-spacing: 1px;
+        }
+        .mc-input {
+            
+            padding: 12px 14px;
+            font-family: 'Press Start 2P', 'Arial', sans-serif;
+            font-size: 1rem;
+            border: 2.5px solid #6bbf47;
+            border-radius: 6px;
+            background: #181818;
+            color: #fff;
+            outline: none;
+            box-shadow: 0 1.5px 0 #fff4 inset;
+            margin-bottom: 2px;
+            letter-spacing: 1px;
+            transition: border-color 0.2s;
+        }
+        .mc-input:focus {
+            border-color: #ffe066;
+        }
+        .mc-btn {
             width: 100%;
-            padding-right: 40px;
+            padding: 13px 0;
+            font-family: 'Press Start 2P', 'Arial', sans-serif;
+            font-size: 1rem;
+            background: linear-gradient(90deg, #ffe066 0%, #6bbf47 100%);
+            color: #222;
+            border: 2.5px solid #ffe066;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 2px 0 #b6a16b;
+            margin-top: 10px;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 0 #fff8;
+            transition: background 0.2s, border-color 0.2s;
         }
-        .pw-toggle-btn {
+        .mc-btn:hover {
+            background: linear-gradient(90deg, #ffe066 0%, #b6a16b 100%);
+            border-color: #6bbf47;
+        }
+        .mc-error {
+            color: #fff;
+            background: #b22222;
+            border: 2px solid #ff5555;
+            border-radius: 6px;
+            padding: 12px 0;
+            margin-bottom: 18px;
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 0 #000a;
+        }
+        .mc-info {
+            margin-top: 22px;
+            color: #e0e0e0;
+            font-size: 0.8rem;
+            text-align: center;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 0 #000a;
+        }
+        /* パスワード表示切替ボタン */
+        .mc-pw-toggle {
             position: absolute;
             right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             background: none;
             border: none;
             cursor: pointer;
@@ -118,74 +131,95 @@ layout = false;
             display: flex;
             align-items: center;
             height: 100%;
-            transition: filter 0.2s;
+            filter: brightness(1.2);
         }
-        .pw-toggle-btn:hover svg path,
-        .pw-toggle-btn:focus svg path {
-            stroke: #4299e1;
+        .mc-pw-toggle svg {
+            width: 22px;
+            height: 22px;
         }
-        .pw-toggle-btn:hover svg #eyeBall,
-        .pw-toggle-btn:focus svg #eyeBall {
-            fill: #4299e1;
+        .mc-password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .mc-shop-title {
+            font-family: 'Press Start 2P', 'Arial', sans-serif;
+            color: #ffe066;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            text-shadow: 2px 2px 0 #222, 0 0 8px #6bbf47;
+        }
+        .mc-bg-watermark {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Press Start 2P', 'Arial', sans-serif;
+            font-size: 3.2vw;
+            color: #222;
+            opacity: 0.75;
+            letter-spacing: 0.2em;
+            white-space: nowrap;
+            pointer-events: none;
+            user-select: none;
+            z-index: 0;
+            text-shadow: 2px 2px 8px #000, 0 0 32px #6bbf47;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1 class="login-title">ログイン</h1>
-        
+    <div class="mc-bg-watermark">Minecraft SHOP</div>
+    <div class="mc-login-box">
+        <img src="/images/1.png" alt="Minecraftロゴ" class="mc-logo">
+        <div class="mc-title">ログイン</div>
         <% if (error) { %>
-            <div class="error"><%= error %></div>
+            <div class="mc-error"><%= error %></div>
         <% } %>
-        
         <form method="POST" action="/auth/login">
-            <div class="form-group">
+            <div class="mc-form-group">
                 <label for="username">ユーザー名</label>
-                <input type="text" id="username" name="username" value="admin" required>
+                <input type="text" id="username" name="username" class="mc-input" value="admin" required autocomplete="username">
             </div>
-            
-            <div class="form-group">
+            <div class="mc-form-group">
                 <label for="password">パスワード</label>
-                <div class="password-wrapper">
-                    <input type="password" id="password" name="password" value="1234" required autocomplete="current-password">
-                    <button type="button" id="togglePassword" class="pw-toggle-btn" tabindex="-1" aria-label="パスワード表示切替">
-                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#718096" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle id="eyeBall" cx="12" cy="12" r="3.5" fill="#718096"/></svg>
+                <div class="mc-password-wrapper">
+                    <input type="password" id="password" name="password" class="mc-input" value="1234" required autocomplete="current-password">
+                    <button type="button" id="togglePassword" class="mc-pw-toggle" tabindex="-1" aria-label="パスワード表示切替">
+                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#ffe066" stroke-width="2" d="M1 12S5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle id="eyeBall" cx="12" cy="12" r="3.5" fill="#ffe066"/></svg>
                     </button>
                 </div>
             </div>
-            
-            <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const pwInput = document.getElementById('password');
-                const toggleBtn = document.getElementById('togglePassword');
-                const eyeIcon = document.getElementById('eyeIcon');
-                const eyeBall = document.getElementById('eyeBall');
-                let visible = false;
-                if (pwInput && toggleBtn) {
-                    toggleBtn.addEventListener('click', function() {
-                        visible = !visible;
-                        pwInput.type = visible ? 'text' : 'password';
-                        // アイコンの色を切り替え（オプションで線を変えるなども可）
-                        if (visible) {
-                            eyeBall.setAttribute('fill', '#4299e1');
-                            eyeIcon.setAttribute('stroke', '#4299e1');
-                        } else {
-                            eyeBall.setAttribute('fill', '#718096');
-                            eyeIcon.setAttribute('stroke', '#718096');
-                        }
-                    });
-                }
-            });
-            </script>
-            
-            <button type="submit" class="btn">ログイン</button>
+            <button type="submit" class="mc-btn">ログイン</button>
         </form>
-        
-        <div class="info">
+        <div class="mc-info">
             <p><strong>デフォルトアカウント:</strong></p>
             <p>管理者: admin / 1234</p>
             <p>一般ユーザー: user1 / 1234</p>
         </div>
     </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const pwInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('togglePassword');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const eyeBall = document.getElementById('eyeBall');
+        let visible = false;
+        if (pwInput && toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                visible = !visible;
+                pwInput.type = visible ? 'text' : 'password';
+                // アイコンの色を切り替え
+                if (visible) {
+                    eyeBall.setAttribute('fill', '#6bbf47');
+                    eyeIcon.setAttribute('stroke', '#6bbf47');
+                } else {
+                    eyeBall.setAttribute('fill', '#ffe066');
+                    eyeIcon.setAttribute('stroke', '#ffe066');
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html> 

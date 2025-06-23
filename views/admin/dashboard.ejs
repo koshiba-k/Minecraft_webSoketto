@@ -1,4 +1,4 @@
-<h1 style="margin-bottom: 30px; color: #2d3748;">管理者ダッシュボード</h1>
+<h1 class="admin-title">管理者ダッシュボード</h1>
 
 <!-- 統計情報 -->
 <div class="admin-grid">
@@ -17,37 +17,69 @@
     </div>
 </div>
 
-<div style="display: flex; gap: 2.2rem; margin-bottom: 3rem; justify-content: flex-end; padding: 1.2rem 0 1.2rem 0;">
-  <a href="/admin/stats" class="btn btn-success">📊 統計情報詳細</a>
+<div class="admin-action-bar">
   <a href="/admin/users" class="btn btn-success">👥 ユーザー情報詳細</a>
   <a href="/admin/balance" class="btn btn-success">ユーザー所持金</a>
   <a href="/admin/user-history" class="btn btn-success">ユーザーごとの購入履歴</a>
+  <a href="/admin/items" class="btn btn-success">商品価格変更</a>
 </div>
 
-<!-- ユーザー所持金一覧 -->
-<h2 style="margin-top: 40px; margin-bottom: 20px; color: #232f3e; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-    ユーザー所持金一覧
-</h2>
-<div style="background: #fafafa; border-radius: 0.5rem; padding: 1.5rem; box-shadow: 0 2px 8px rgba(35,47,62,0.08); margin-bottom: 2rem;">
-    <table style="width: 100%; border-collapse: collapse;">
+<div style="display: flex; gap: 2rem; align-items: flex-start; margin-top: 2rem; justify-content: flex-end;">
+  <!-- ユーザー所持金一覧（左カラム） -->
+  <div style="flex: 1; min-width: 320px;">
+    <h2 class="admin-section-title">ユーザー所持金一覧</h2>
+    <div class="admin-balance-list">
+      <table class="admin-balance-table">
         <thead>
-            <tr style="background: #f3f3f3;">
-                <th style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: left;">ユーザー名</th>
-                <th style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;">所持金</th>
-            </tr>
+          <tr>
+            <th class="admin-balance-th-left">ユーザー名</th>
+            <th class="admin-balance-th-right">所持金</th>
+          </tr>
         </thead>
         <tbody>
-            <% users.forEach(function(u) { %>
-                <tr>
-                    <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;"><%= u.username %></td>
-                    <td style="padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: right;"><%= u.balance.toLocaleString() %>円</td>
-                </tr>
-            <% }); %>
+          <% users.forEach(function(u) { %>
+            <tr>
+              <td class="admin-balance-td-left"><%= u.username %></td>
+              <td class="admin-balance-td-right"><%= u.balance.toLocaleString() %>円</td>
+            </tr>
+          <% }); %>
         </tbody>
-    </table>
-</div>
-
-
-<div style="text-align: center; margin-top: 30px;">
-    <a href="/shop" class="btn">ショップに戻る</a>
+      </table>
+    </div>
+  </div>
+  <!-- 購入履歴（右カラム） -->
+  <div style="min-width: 420px; margin-left: auto;">
+    <h2 class="admin-section-title">購入履歴（最新10件）</h2>
+    <div class="admin-history-list">
+      <table class="admin-history-table">
+        <thead>
+          <tr>
+            <th style="padding:8px; border-bottom:1px solid #e2e8f0;">購入日時</th>
+            <th style="padding:8px; border-bottom:1px solid #e2e8f0;">ジャンル</th>
+            <th style="padding:8px; border-bottom:1px solid #e2e8f0;">商品写真</th>
+            <th style="padding:8px; border-bottom:1px solid #e2e8f0;">アイテム名</th>
+            <th style="padding:8px; border-bottom:1px solid #e2e8f0;">ユーザー名</th>
+            <th style="padding:8px; border-bottom:1px solid #e2e8f0;">個数</th>
+            <th style="padding:8px; border-bottom:1px solid #e2e8f0;">金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% history.slice(0, 10).forEach(function(h) { %>
+            <tr>
+              <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= new Date(h.purchase_date || h.purchase_time).toLocaleString('ja-JP') %></td>
+              <% let genreDisp = h.genre.replace(/^\d+/, '');
+                 if (genreDisp === '食べ物植物') genreDisp = '食べ物・植物';
+                 if (genreDisp === '武器装備') genreDisp = '武器・装備'; %>
+              <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= genreDisp %></td>
+              <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><img src="<%= h.imagePath %>" alt="<%= h.item_name %>" style="width:32px; height:32px; object-fit:contain;"></td>
+              <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= h.item_name %></td>
+              <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= h.username %></td>
+              <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= h.quantity %></td>
+              <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:right;"><%= h.total_price.toLocaleString() %>円</td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
