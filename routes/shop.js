@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const Item = require('../models/Item');
@@ -6,6 +7,10 @@ const PurchaseHistory = require('../models/PurchaseHistory');
 const { getImagePath, findImageFile } = require('../utils/imageMapping');
 const Wishlist = require('../models/Wishlist');
 const db = require('../config/database');
+const Monster = require('../models/Monster');
+const fs = require('fs');
+const mapping = JSON.parse(fs.readFileSync(require('path').join(__dirname, '../utils/mapping.json'), 'utf8'));
+const uuid = require('uuid');
 
 // 認証ミドルウェア
 const requireAuth = async (req, res, next) => {
@@ -204,6 +209,61 @@ router.post('/purchase', requireAuth, async (req, res) => {
           cartItem.quantity,
           item.price * cartItem.quantity
         );
+        // mapping.jsonからコマンド取得
+        let baseCmd = mapping[item.name];
+        if (typeof baseCmd === 'object' && baseCmd.command) baseCmd = baseCmd.command;
+        // name/data形式の場合は自動でコマンドを組み立てる
+        if (typeof baseCmd === 'object' && baseCmd.name) {
+          if (baseCmd.data) {
+            baseCmd = `give ${user.username} ${baseCmd.name} ${cartItem.quantity} ${baseCmd.data}`;
+          } else {
+            baseCmd = `give ${user.username} ${baseCmd.name} ${cartItem.quantity}`;
+          }
+        }
+        if (typeof baseCmd === 'string') {
+          let cmdParts = baseCmd.split(' ');
+          if (cmdParts[1] === '@s') cmdParts[1] = user.username;
+          // 購入数を3番目に必ずセット
+          cmdParts[3] = cartItem.quantity.toString();
+          // データ値がmapping.jsonに含まれていればそのまま、なければ省略
+          if (cmdParts.length > 4) {
+            // 4番目以降はデータ値としてそのまま残す
+          } else {
+            cmdParts = cmdParts.slice(0, 4);
+          }
+          const commandLine = cmdParts.join(' ');
+          // Bedrock Edition用コマンドリクエストJSON
+          const commandRequestMessageJSON = {
+            header: {
+              version: 1,
+              requestId: uuid.v4(),
+              messageType: "commandRequest",
+              messagePurpose: "commandRequest"
+            },
+            body: {
+              origin: { type: "player" },
+              version: 1,
+              commandLine
+            }
+          };
+          console.log('MC_WS_URL:', process.env.MC_WS_URL);
+          const WebSocket = require('ws');
+          const ws = new WebSocket(process.env.MC_WS_URL);
+          ws.on('open', () => {
+            ws.send(JSON.stringify(commandRequestMessageJSON), (err) => {
+              if (err) {
+                console.error('コマンド送信エラー:', err, commandRequestMessageJSON);
+              } else {
+                console.log('コマンド送信成功:', JSON.stringify(commandRequestMessageJSON));
+              }
+            });
+          });
+          ws.on('error', (err) => {
+            console.error('WebSocket接続エラー:', err, commandRequestMessageJSON);
+          });
+        } else {
+          console.error('mapping.jsonにコマンドが見つかりません:', item.name);
+        }
       }
     }
 
@@ -321,6 +381,12 @@ router.post('/update-cart-quantity', requireAuth, (req, res) => {
 router.get('/api/item-names', async (req, res) => {
   const [rows] = await db.execute('SELECT name FROM items ORDER BY name');
   res.json(rows.map(r => r.name));
+});
+
+// モンスター討伐履歴
+router.get('/monster-history', requireAuth, async (req, res) => {
+  const monsterHistory = await Monster.getMonsterKillsByUser(req.session.user.id);
+  res.render('shop/monster_history', { user: req.session.user, monsterHistory });
 });
 
 module.exports = router; 

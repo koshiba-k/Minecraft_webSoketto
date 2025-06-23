@@ -27,12 +27,12 @@ header {
     margin-bottom: 2rem;
 }
 
-nav {
+nav.main-nav {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     max-width: 1600px;
-    margin: 0 auto;
+    margin:0px 20% 0px 0px ;
     padding: 0 20px;
 }
 
@@ -40,11 +40,12 @@ nav {
     font-size: 1.5rem;
     font-weight: bold;
     color: #ff9900;
+    margin: 0;
 }
 
 .nav-links {
     display: flex;
-    gap: 2rem;
+    gap: 1rem;
     list-style: none;
 }
 

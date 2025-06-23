@@ -52,6 +52,28 @@ async function initDatabase() {
       )
     `);
 
+    // モンスターテーブル作成
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS monsters (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(64) NOT NULL,
+        strength INT NOT NULL,
+        reward INT NOT NULL DEFAULT 0
+      )
+    `);
+
+    // モンスター討伐ログテーブル作成
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS monster_kills (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        monster_id INT NOT NULL,
+        killed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (monster_id) REFERENCES monsters(id)
+      )
+    `);
+
     // デフォルト管理者ユーザー作成
     await connection.execute(`
       INSERT IGNORE INTO users (username, password, isAdmin) 

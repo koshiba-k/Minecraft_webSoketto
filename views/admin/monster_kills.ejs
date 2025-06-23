@@ -1,0 +1,31 @@
+<h1 style="margin-bottom: 30px; color: #2d3748;">全ユーザー討伐履歴</h1>
+
+<table style="width:100%; border-collapse:collapse; background:#fff;">
+  <thead>
+    <tr style="background:#f3f3f3;">
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">討伐日時</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">ユーザー名</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">モンスター</th>
+      <th style="padding:8px; border-bottom:1px solid #e2e8f0;">報酬</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if (monsterKills && monsterKills.length > 0) { %>
+      <% monsterKills.forEach(function(h) { %>
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= new Date(h.killed_at).toLocaleString('ja-JP') %></td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;"><%= h.username %></td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:center;">
+            <% if (h.image_path) { %>
+              <img src="<%= h.image_path %>" alt="<%= h.monster_name %>" width="32" height="32" style="vertical-align:middle; margin-right:8px;">
+            <% } %>
+            <%= h.monster_name %>
+          </td>
+          <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:right;"><%= h.reward.toLocaleString() %>円</td>
+        </tr>
+      <% }); %>
+    <% } else { %>
+      <tr><td colspan="4" style="text-align:center; color:#888; padding: 2rem;">討伐履歴がありません</td></tr>
+    <% } %>
+  </tbody>
+</table> 

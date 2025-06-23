@@ -40,6 +40,7 @@ Node.js（Express）・MySQL・MVC構成で作られた、Minecraftのアイテ�
    DB_NAME=minecraft_shop
    PORT=3000
    SESSION_SECRET=minecraft-shop-secret
+   MC_WS_URL=ws://localhost:19132
    ```
 
 3. **MySQLサーバー起動＆接続テスト**

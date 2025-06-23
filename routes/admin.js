@@ -5,6 +5,7 @@ const User = require('../models/User');
 const PurchaseHistory = require('../models/PurchaseHistory');
 const { getImagePath, findImageFile } = require('../utils/imageMapping');
 const bcrypt = require('bcrypt');
+const Monster = require('../models/Monster');
 
 // 管理者認証ミドルウェア
 const requireAdmin = (req, res, next) => {
@@ -287,6 +288,18 @@ router.post('/toggle-active', requireAdmin, async (req, res) => {
     console.error('販売状態切替エラー:', error);
     res.status(500).json({ error: '販売状態切替中にエラーが発生しました' });
   }
+});
+
+// 全ユーザー討伐履歴
+router.get('/monster-kills', requireAdmin, async (req, res) => {
+  const monsterKills = await Monster.getAllMonsterKills();
+  res.render('admin/monster_kills', { user: req.session.user, monsterKills });
+});
+
+// モンスター報酬編集
+router.get('/monster-rewards', requireAdmin, async (req, res) => {
+  const monsters = await Monster.getAllMonsters();
+  res.render('admin/monster_rewards', { user: req.session.user, monsters });
 });
 
 module.exports = router; 
