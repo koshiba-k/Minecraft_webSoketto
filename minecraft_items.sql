@@ -1,3 +1,8 @@
+CREATE DATABASE IF NOT EXISTS minecraft_shop
+  DEFAULT CHARACTER SET utf8mb4
+  DEFAULT COLLATE utf8mb4_unicode_ci;
+USE minecraft_shop;
+
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
@@ -36,57 +41,14 @@ CREATE TABLE wishlist (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
 );
--- mysql> desc items;
--- +------------+--------------+------+-----+-------------------+-------------------+
--- | Field      | Type         | Null | Key | Default           | Extra             |
--- +------------+--------------+------+-----+-------------------+-------------------+
--- | id         | int          | NO   | PRI | NULL              | auto_increment    |
--- | name       | varchar(100) | NO   |     | NULL              |                   |
--- | genre      | varchar(50)  | NO   |     | NULL              |                   |
--- | price      | int          | YES  |     | 100               |                   |
--- | image_path | varchar(255) | YES  |     | NULL              |                   |
--- | created_at | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
--- +------------+--------------+------+-----+-------------------+-------------------+
--- 6 rows in set (0.00 sec)
--- mysql> desc purchase_history;
--- +---------------+-----------+------+-----+-------------------+-------------------+
--- | Field         | Type      | Null | Key | Default           | Extra             |
--- +---------------+-----------+------+-----+-------------------+-------------------+
--- | id            | int       | NO   | PRI | NULL              | auto_increment    |
--- | user_id       | int       | YES  | MUL | NULL              |                   |
--- | item_id       | int       | YES  | MUL | NULL              |                   |
--- | quantity      | int       | YES  |     | NULL              |                   |
--- | total_price   | int       | YES  |     | NULL              |                   |
--- | purchase_date | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
--- +---------------+-----------+------+-----+-------------------+-------------------+
--- 6 rows in set (0.00 sec)
 
--- +------------+--------------+------+-----+-------------------+-------------------+
--- | Field      | Type         | Null | Key | Default           | Extra             |
--- +------------+--------------+------+-----+-------------------+-------------------+
--- | id         | int          | NO   | PRI | NULL              | auto_increment    |
--- | username   | varchar(50)  | NO   | UNI | NULL              |                   |
--- | password   | varchar(255) | NO   |     | NULL              |                   |
--- | balance    | int          | YES  |     | 10000             |                   |
--- | isAdmin    | tinyint(1)   | YES  |     | 0                 |                   |
--- | locked     | tinyint(1)   | YES  |     | 0                 |                   |
--- | created_at | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
--- +------------+--------------+------+-----+-------------------+-------------------+
--- 7 rows in set (0.00 sec)
-
--- mysql> desc wishlist;
--- +------------+----------+------+-----+-------------------+-------------------+
--- | Field      | Type     | Null | Key | Default           | Extra             |
--- +------------+----------+------+-----+-------------------+-------------------+
--- | id         | int      | NO   | PRI | NULL              | auto_increment    |
--- | user_id    | int      | NO   | MUL | NULL              |                   |
--- | item_id    | int      | NO   | MUL | NULL              |                   |
--- | created_at | datetime | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
--- +------------+----------+------+-----+-------------------+-------------------+
--- 4 rows in set (0.00 sec)
-
--- Minecraftアイテムデータ
--- このファイルは scripts/generate-sql.js で自動生成されました
+CREATE TABLE IF NOT EXISTS monsters (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(64) NOT NULL,         -- 英語名（MOBID）
+  strength INT NOT NULL DEFAULT 1,   -- モンスターの強さ
+  reward INT NOT NULL DEFAULT 100,   -- 討伐時の報酬
+  image_path VARCHAR(255)            -- 画像パス（例: /mob_images/drowned.webp）
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- アイテムデータの挿入
 INSERT INTO items (name, genre, price, image_path) VALUES
@@ -1763,6 +1725,87 @@ INSERT INTO items (name, genre, price, image_path) VALUES
 ('黄色の染料', 'その他', 177, 'その他/黄色の染料.png'),
 ('黒色の染料', 'その他', 535, 'その他/黒色の染料.png');
 
+--MOB名前、強さ、写真パス　挿入
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('allay', 1, 100, '/mob_images/allay.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('armadillo', 1, 100, '/mob_images/armadillo.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('axolotl', 1, 100, '/mob_images/axolotl.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('bat', 1, 100, '/mob_images/bat.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('bee', 1, 100, '/mob_images/bee.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('blaze', 1, 100, '/mob_images/blaze.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('bogged', 1, 100, '/mob_images/bogged.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('breeze', 1, 100, '/mob_images/breeze.png');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('camel', 1, 100, '/mob_images/camel.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('cat', 1, 100, '/mob_images/cat.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('cave_spider', 1, 100, '/mob_images/cave_spider.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('chicken', 1, 100, '/mob_images/chicken.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('cod', 1, 100, '/mob_images/cod.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('creaking', 1, 100, '/mob_images/creaking.png');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('creeper', 1, 100, '/mob_images/creeper.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('dolphin', 1, 100, '/mob_images/dolphin.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('donkey', 1, 100, '/mob_images/donkey.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('drowned', 1, 100, '/mob_images/drowned.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('elder_guardian', 1, 100, '/mob_images/elder_guardian.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('enderman', 1, 100, '/mob_images/enderman.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('endermite', 1, 100, '/mob_images/endermite.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('ender_dragon', 1, 100, '/mob_images/ender_dragon.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('evocation_illager', 1, 100, '/mob_images/evocation_illager.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('fox', 1, 100, '/mob_images/fox.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('frog', 1, 100, '/mob_images/frog.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('ghast', 1, 100, '/mob_images/ghast.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('glow_squid', 1, 100, '/mob_images/glow_squid.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('goat', 1, 100, '/mob_images/goat.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('guardian', 1, 100, '/mob_images/guardian.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('happy_ghast', 1, 100, '/mob_images/happy_ghast.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('hoglin', 1, 100, '/mob_images/hoglin.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('horse', 1, 100, '/mob_images/horse.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('husk', 1, 100, '/mob_images/husk.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('iron_golem', 1, 100, '/mob_images/iron_golem.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('llama', 1, 100, '/mob_images/llama.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('magma_cube', 1, 100, '/mob_images/magma_cube.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('mooshroom', 1, 100, '/mob_images/mooshroom.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('mule', 1, 100, '/mob_images/mule.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('ocelot', 1, 100, '/mob_images/ocelot.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('panda', 1, 100, '/mob_images/panda.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('parrot', 1, 100, '/mob_images/parrot.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('phantom', 1, 100, '/mob_images/phantom.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('pig', 1, 100, '/mob_images/pig.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('piglin', 1, 100, '/mob_images/piglin.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('piglin_brute', 1, 100, '/mob_images/piglin_brute.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('pillager', 1, 100, '/mob_images/pillager.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('polar_bear', 1, 100, '/mob_images/polar_bear.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('pufferfish', 1, 100, '/mob_images/pufferfish.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('rabbit', 1, 100, '/mob_images/rabbit.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('ravager', 1, 100, '/mob_images/ravager.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('salmon', 1, 100, '/mob_images/salmon.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('sheep', 1, 100, '/mob_images/sheep.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('shulker', 1, 100, '/mob_images/shulker.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('silverfish', 1, 100, '/mob_images/silverfish.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('skeleton', 1, 100, '/mob_images/skeleton.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('skeleton_horse', 1, 100, '/mob_images/skeleton_horse.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('slime', 1, 100, '/mob_images/slime.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('sniffer', 1, 100, '/mob_images/sniffer.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('snow_golem', 1, 100, '/mob_images/snow_golem.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('spider', 1, 100, '/mob_images/spider.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('squid', 1, 100, '/mob_images/squid.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('stray', 1, 100, '/mob_images/stray.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('strider', 1, 100, '/mob_images/strider.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('tadpole', 1, 100, '/mob_images/tadpole.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('tropicalfish', 1, 100, '/mob_images/tropicalfish.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('turtle', 1, 100, '/mob_images/turtle.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('vex', 1, 100, '/mob_images/vex.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('villager', 1, 100, '/mob_images/villager.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('vindicator', 1, 100, '/mob_images/vindicator.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('wandering_trader', 1, 100, '/mob_images/wandering_trader.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('warden', 1, 100, '/mob_images/warden.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('witch', 1, 100, '/mob_images/witch.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('wither', 1, 100, '/mob_images/wither.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('wither_skeleton', 1, 100, '/mob_images/wither_skeleton.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('wolf', 1, 100, '/mob_images/wolf.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('zoglin', 1, 100, '/mob_images/zoglin.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('zombie', 1, 100, '/mob_images/zombie.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('zombie_horse', 1, 100, '/mob_images/zombie_horse.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('zombie_pigman', 1, 100, '/mob_images/zombie_pigman.webp');
+INSERT INTO monsters (name, strength, reward, image_path) VALUES ('zombie_villager', 1, 100, '/mob_images/zombie_villager.webp');
 
 -- 統計情報
 SELECT genre, COUNT(*) as count FROM items GROUP BY genre ORDER BY count DESC;
@@ -1770,3 +1813,67 @@ SELECT genre, COUNT(*) as count FROM items GROUP BY genre ORDER BY count DESC;
 -- 全アイテム数
 SELECT COUNT(*) as total_items FROM items;
 
+
+-- mysql> DESCRIBE users;
+-- +------------+--------------+------+-----+-------------------+-------------------+
+-- | Field      | Type         | Null | Key | Default           | Extra             |
+-- +------------+--------------+------+-----+-------------------+-------------------+
+-- | id         | int          | NO   | PRI | NULL              | auto_increment    |
+-- | username   | varchar(50)  | NO   | UNI | NULL              |                   |
+-- | password   | varchar(255) | NO   |     | NULL              |                   |
+-- | balance    | int          | YES  |     | 10000             |                   |
+-- | isAdmin    | tinyint(1)   | YES  |     | 0                 |                   |
+-- | locked     | tinyint(1)   | YES  |     | 0                 |                   |
+-- | created_at | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+-- +------------+--------------+------+-----+-------------------+-------------------+
+-- 7 rows in set (0.00 sec)
+
+-- mysql> DESCRIBE items;
+-- +------------+--------------+------+-----+-------------------+-------------------+
+-- | Field      | Type         | Null | Key | Default           | Extra             |
+-- +------------+--------------+------+-----+-------------------+-------------------+
+-- | id         | int          | NO   | PRI | NULL              | auto_increment    |
+-- | name       | varchar(100) | NO   |     | NULL              |                   |
+-- | genre      | varchar(50)  | NO   |     | NULL              |                   |
+-- | price      | int          | YES  |     | 100               |                   |
+-- | image_path | varchar(255) | YES  |     | NULL              |                   |
+-- | created_at | timestamp    | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+-- +------------+--------------+------+-----+-------------------+-------------------+
+-- 6 rows in set (0.00 sec)
+
+-- mysql> DESCRIBE purchase_history;
+-- +---------------+-----------+------+-----+-------------------+-------------------+
+-- | Field         | Type      | Null | Key | Default           | Extra             |
+-- +---------------+-----------+------+-----+-------------------+-------------------+
+-- | id            | int       | NO   | PRI | NULL              | auto_increment    |
+-- | user_id       | int       | YES  | MUL | NULL              |                   |
+-- | item_id       | int       | YES  | MUL | NULL              |                   |
+-- | quantity      | int       | YES  |     | NULL              |                   |
+-- | total_price   | int       | YES  |     | NULL              |                   |
+-- | purchase_date | timestamp | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+-- +---------------+-----------+------+-----+-------------------+-------------------+
+-- 6 rows in set (0.00 sec)
+
+-- mysql> DESCRIBE wishlist;
+-- +------------+----------+------+-----+-------------------+-------------------+
+-- | Field      | Type     | Null | Key | Default           | Extra             |
+-- +------------+----------+------+-----+-------------------+-------------------+
+-- | id         | int      | NO   | PRI | NULL              | auto_increment    |
+-- | user_id    | int      | NO   | MUL | NULL              |                   |
+-- | item_id    | int      | NO   | MUL | NULL              |                   |
+-- | created_at | datetime | YES  |     | CURRENT_TIMESTAMP | DEFAULT_GENERATED |
+-- +------------+----------+------+-----+-------------------+-------------------+
+-- 4 rows in set (0.00 sec)
+
+
+-- 各テーブルのデータ件数をまとめて確認
+-- Apply to minecraft_it...
+-- SELECT 'users' AS table_name, COUNT(*) AS count FROM users
+-- UNION ALL
+-- SELECT 'items', COUNT(*) FROM items
+-- UNION ALL
+-- SELECT 'purchase_history', COUNT(*) FROM purchase_history
+-- UNION ALL
+-- SELECT 'wishlist', COUNT(*) FROM wishlist
+-- UNION ALL
+-- SELECT 'monsters', COUNT(*) FROM monsters;

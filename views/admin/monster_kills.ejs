@@ -1,6 +1,40 @@
-<h1 style="margin-bottom: 30px; color: #2d3748;">全ユーザー討伐履歴</h1>
+<div style="height: 70px;"></div> <!-- ヘッダー分の余白 -->
+<script>const mobNameMap = <%- JSON.stringify(mobNameMap) %>;</script>
+<div style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: flex-start; justify-content: center; margin-bottom: 30px; font-size: 1.15em;">
+  <!-- 左: 円グラフ -->
+  <div style="flex: 1 1 320px; min-width: 320px; max-width: 480px;">
+    <h2 style="font-size:1.1rem; margin-bottom: 10px;">討伐割合グラフ</h2>
+    <div id="total-kills-label" style="font-weight:bold; font-size:1.2rem; margin-bottom:8px;"></div>
+    <canvas id="monsterPieChart" width="380" height="380"></canvas>
+  </div>
+  <!-- 右: モンスターごとの討伐総数 -->
+  <div style="flex: 1 1 220px; min-width: 220px; max-width: 320px;">
+    <h2 style="font-size:1.1rem; margin-bottom: 10px;">モンスターごとの討伐総数</h2>
+    <table style="width:100%; border-collapse:collapse; background:#fff;">
+      <thead>
+        <tr style="background:#f3f3f3;">
+          <th style="padding:6px; border-bottom:1px solid #e2e8f0;">モンスター</th>
+          <th style="padding:6px; border-bottom:1px solid #e2e8f0; text-align:right;">討伐数</th>
+        </tr>
+      </thead>
+      <tbody id="monster-count-table-body">
+        <!-- JSで生成 -->
+      </tbody>
+    </table>
+  </div>
+</div>
 
-<table style="width:100%; border-collapse:collapse; background:#fff;">
+<!-- 検索フォーム -->
+<form method="GET" action="/admin/monster-kills" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+  <input type="text" name="user" placeholder="ユーザー名" value="<%= typeof selectedUser !== 'undefined' ? selectedUser : '' %>" list="user-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+  <datalist id="user-suggest"></datalist>
+  <input type="text" name="monster" placeholder="モンスター名" value="<%= typeof selectedMonster !== 'undefined' ? selectedMonster : '' %>" list="monster-suggest" style="padding: 0.5rem 1rem; border-radius: 0.4rem; border: 1px solid #e2e8f0; font-size: 1rem;">
+  <datalist id="monster-suggest"></datalist>
+  <button type="submit" class="btn btn-success">検索</button>
+</form>
+
+<!-- 下: 討伐履歴テーブル -->
+<table style="width:100%; border-collapse:collapse; background:#fff; margin-top: 30px;">
   <thead>
     <tr style="background:#f3f3f3;">
       <th style="padding:8px; border-bottom:1px solid #e2e8f0;">討伐日時</th>
@@ -19,7 +53,7 @@
             <% if (h.image_path) { %>
               <img src="<%= h.image_path %>" alt="<%= h.monster_name %>" width="32" height="32" style="vertical-align:middle; margin-right:8px;">
             <% } %>
-            <%= h.monster_name %>
+            <%= mobNameMap[h.monster_name] || h.monster_name %>
           </td>
           <td style="padding:8px; border-bottom:1px solid #e2e8f0; text-align:right;"><%= h.reward.toLocaleString() %>円</td>
         </tr>
@@ -28,4 +62,67 @@
       <tr><td colspan="4" style="text-align:center; color:#888; padding: 2rem;">討伐履歴がありません</td></tr>
     <% } %>
   </tbody>
-</table> 
+</table>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function() {
+  const history = <%- JSON.stringify(monsterKills) %>;
+  if (!history || history.length === 0) return;
+  // モンスターごとの討伐数集計
+  const countMap = {};
+  const imageMap = {};
+  history.forEach(h => {
+    countMap[h.monster_name] = (countMap[h.monster_name] || 0) + 1;
+    if (!imageMap[h.monster_name] && h.image_path) imageMap[h.monster_name] = h.image_path;
+  });
+  // 降順ソート
+  const sorted = Object.entries(countMap).sort((a, b) => b[1] - a[1]);
+  // テーブル生成（日本語名＋画像）
+  const tbody = document.getElementById('monster-count-table-body');
+  tbody.innerHTML = sorted.map(([name, count]) => {
+    const jp = mobNameMap[name] || name;
+    const img = imageMap[name] ? `<img src='${imageMap[name]}' alt='${jp}' width='28' height='28' style='vertical-align:middle;margin-right:8px;'>` : '';
+    return `<tr><td style='padding:6px;'>${img}${jp}</td><td style='padding:6px; text-align:right;'>${count}</td></tr>`;
+  }).join('');
+  // 円グラフ生成
+  const ctx = document.getElementById('monsterPieChart').getContext('2d');
+  const colors = [
+    '#4fd1c5','#63b3ed','#f6ad55','#fc8181','#90cdf4','#f687b3','#fbd38d','#68d391','#fbb6ce','#a0aec0','#c3aed6','#f9e79f','#e59866','#b2babb','#d7bde2','#aed6f1','#a3e4d7','#fad7a0','#f5b7b1','#d2b4de'
+  ];
+  const labels = sorted.map(([name]) => mobNameMap[name] || name);
+  const data = sorted.map(([, count]) => count);
+  // 総討伐数
+  const total = data.reduce((a, b) => a + b, 0);
+  document.getElementById('total-kills-label').textContent = `総討伐数: ${total}体`;
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'bottom' }
+      }
+    }
+  });
+})();
+</script>
+
+<script>
+// サジェスト用ユーザー名取得
+fetch('/admin/api/user-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('user-suggest');
+  datalist.innerHTML = list.map(name => `<option value=\"${name}\">`).join('');
+});
+// サジェスト用モンスター名取得
+fetch('/admin/api/monster-names').then(res => res.json()).then(list => {
+  const datalist = document.getElementById('monster-suggest');
+  datalist.innerHTML = list.map(name => `<option value=\"${name}\">`).join('');
+});
+</script> 

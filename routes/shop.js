@@ -11,6 +11,7 @@ const Monster = require('../models/Monster');
 const fs = require('fs');
 const mapping = JSON.parse(fs.readFileSync(require('path').join(__dirname, '../utils/mapping.json'), 'utf8'));
 const uuid = require('uuid');
+const mobNameMap = require('../scripts/mobid_japanese_map.json');
 
 // 認証ミドルウェア
 const requireAuth = async (req, res, next) => {
@@ -212,7 +213,6 @@ router.post('/purchase', requireAuth, async (req, res) => {
         // mapping.jsonからコマンド取得
         let baseCmd = mapping[item.name];
         if (typeof baseCmd === 'object' && baseCmd.command) baseCmd = baseCmd.command;
-        // name/data形式の場合は自動でコマンドを組み立てる
         if (typeof baseCmd === 'object' && baseCmd.name) {
           if (baseCmd.data) {
             baseCmd = `give ${user.username} ${baseCmd.name} ${cartItem.quantity} ${baseCmd.data}`;
@@ -223,44 +223,31 @@ router.post('/purchase', requireAuth, async (req, res) => {
         if (typeof baseCmd === 'string') {
           let cmdParts = baseCmd.split(' ');
           if (cmdParts[1] === '@s') cmdParts[1] = user.username;
-          // 購入数を3番目に必ずセット
           cmdParts[3] = cartItem.quantity.toString();
-          // データ値がmapping.jsonに含まれていればそのまま、なければ省略
           if (cmdParts.length > 4) {
             // 4番目以降はデータ値としてそのまま残す
           } else {
             cmdParts = cmdParts.slice(0, 4);
           }
           const commandLine = cmdParts.join(' ');
-          // Bedrock Edition用コマンドリクエストJSON
-          const commandRequestMessageJSON = {
-            header: {
-              version: 1,
-              requestId: uuid.v4(),
-              messageType: "commandRequest",
-              messagePurpose: "commandRequest"
-            },
-            body: {
-              origin: { type: "player" },
-              version: 1,
-              commandLine
-            }
-          };
-          console.log('MC_WS_URL:', process.env.MC_WS_URL);
-          const WebSocket = require('ws');
-          const ws = new WebSocket(process.env.MC_WS_URL);
-          ws.on('open', () => {
-            ws.send(JSON.stringify(commandRequestMessageJSON), (err) => {
-              if (err) {
-                console.error('コマンド送信エラー:', err, commandRequestMessageJSON);
-              } else {
-                console.log('コマンド送信成功:', JSON.stringify(commandRequestMessageJSON));
-              }
+          // --- ここからHTTP経由でコマンド送信 ---
+          const fetch = require('node-fetch');
+          const apiUrl = process.env.COMMAND_API_URL || 'http://localhost:19132/send-command';
+          try {
+            const resp = await fetch(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ commandLine })
             });
-          });
-          ws.on('error', (err) => {
-            console.error('WebSocket接続エラー:', err, commandRequestMessageJSON);
-          });
+            const result = await resp.json();
+            if (!result.status || result.status !== 'ok') {
+              console.error('コマンドAPI送信失敗:', result);
+            } else {
+              console.log('コマンドAPI送信成功:', commandLine);
+            }
+          } catch (e) {
+            console.error('コマンドAPI送信エラー:', e);
+          }
         } else {
           console.error('mapping.jsonにコマンドが見つかりません:', item.name);
         }
@@ -270,8 +257,6 @@ router.post('/purchase', requireAuth, async (req, res) => {
     // 所持金更新
     const newBalance = user.balance - totalPrice;
     await User.updateBalance(user.id, newBalance);
-    
-    // セッション更新
     req.session.user.balance = newBalance;
     req.session.cart = [];
 
@@ -386,7 +371,25 @@ router.get('/api/item-names', async (req, res) => {
 // モンスター討伐履歴
 router.get('/monster-history', requireAuth, async (req, res) => {
   const monsterHistory = await Monster.getMonsterKillsByUser(req.session.user.id);
-  res.render('shop/monster_history', { user: req.session.user, monsterHistory });
+  res.render('shop/monster_history', { user: req.session.user, monsterHistory, mobNameMap });
+});
+
+// 残高取得API
+router.get('/api/balance', requireAuth, async (req, res) => {
+  const user = await User.findById(req.session.user.id);
+  res.json({ balance: user.balance });
+});
+
+// --- カート同期API ---
+// localStorage→サーバーセッションへ
+router.post('/sync-cart', async (req, res) => {
+  const cart = req.body.cart || [];
+  req.session.cart = cart;
+  res.json({ success: true });
+});
+// サーバーセッションのカート取得
+router.get('/api/cart', async (req, res) => {
+  res.json(req.session.cart || []);
 });
 
 module.exports = router; 

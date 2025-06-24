@@ -6,6 +6,7 @@ const PurchaseHistory = require('../models/PurchaseHistory');
 const { getImagePath, findImageFile } = require('../utils/imageMapping');
 const bcrypt = require('bcrypt');
 const Monster = require('../models/Monster');
+const mobNameMap = require('../scripts/mobid_japanese_map.json');
 
 // 管理者認証ミドルウェア
 const requireAdmin = (req, res, next) => {
@@ -292,14 +293,49 @@ router.post('/toggle-active', requireAdmin, async (req, res) => {
 
 // 全ユーザー討伐履歴
 router.get('/monster-kills', requireAdmin, async (req, res) => {
-  const monsterKills = await Monster.getAllMonsterKills();
-  res.render('admin/monster_kills', { user: req.session.user, monsterKills });
+  const { user, monster } = req.query;
+  let where = [];
+  let params = [];
+  if (user) {
+    where.push('u.username = ?');
+    params.push(user);
+  }
+  if (monster) {
+    where.push('m.name = ?');
+    params.push(monster);
+  }
+  const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
+  const [monsterKills] = await db.execute(
+    `SELECT mk.*, u.username, m.name AS monster_name, m.reward, m.image_path
+     FROM monster_kills mk
+     JOIN users u ON mk.user_id = u.id
+     JOIN monsters m ON mk.monster_id = m.id
+     ${whereSql}
+     ORDER BY mk.killed_at DESC`, params);
+  // ユーザー・モンスターリスト取得
+  const users = await User.getAll();
+  const monsters = await Monster.getAllMonsters();
+  res.render('admin/monster_kills', {
+    user: req.session.user,
+    monsterKills,
+    users,
+    monsters,
+    selectedUser: user || '',
+    selectedMonster: monster || '',
+    mobNameMap
+  });
 });
 
 // モンスター報酬編集
 router.get('/monster-rewards', requireAdmin, async (req, res) => {
   const monsters = await Monster.getAllMonsters();
   res.render('admin/monster_rewards', { user: req.session.user, monsters });
+});
+
+// モンスター名サジェストAPI
+router.get('/api/monster-names', requireAdmin, async (req, res) => {
+  const monsters = await Monster.getAllMonsters();
+  res.json(monsters.map(m => m.name));
 });
 
 module.exports = router; 

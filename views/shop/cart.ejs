@@ -1,3 +1,6 @@
+<script src="/js/cart-sync.js"></script>
+<script>restoreCartToServerIfNeeded();</script>
+
 <h1 class="cart-title">購入予定リスト（カート）</h1>
 
 <% if (cartItems.length === 0) { %>
@@ -81,6 +84,28 @@ function updateCartQuantity(event, itemId) {
     }
   });
   return false;
+}
+
+function removeFromCart(itemId) {
+  fetch('/shop/remove-from-cart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ itemId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      removeFromCartLocal(itemId); // localStorageにも反映
+      showPopup('カートから削除しました');
+      location.reload();
+    } else {
+      showPopup('削除に失敗しました');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showPopup('エラーが発生しました');
+  });
 }
 
 function purchase() {
