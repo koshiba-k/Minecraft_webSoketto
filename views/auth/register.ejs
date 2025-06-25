@@ -6,14 +6,13 @@ layout = false;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Minecraft Item Shop</title>
+    <title>Register - Minecraft Item Shop</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
     <style>
-        html, body {
-            height: 100%;
-        }
+        /* login.ejsのスタイルをそのまま流用 */
+        html, body { height: 100%; }
         body {
             min-height: 100vh;
             width: 100vw;
@@ -22,7 +21,6 @@ layout = false;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* Minecraft草ブロック風グラデーション */
             background: linear-gradient(to bottom, #6bbf47 0%, #6bbf47 30%, #b6a16b 30%, #b6a16b 100%);
             font-family: 'Press Start 2P', 'Arial', sans-serif;
         }
@@ -81,9 +79,7 @@ layout = false;
             letter-spacing: 1px;
             transition: border-color 0.2s;
         }
-        .mc-input:focus {
-            border-color: #ffe066;
-        }
+        .mc-input:focus { border-color: #ffe066; }
         .mc-btn {
             width: 100%;
             padding: 13px 0;
@@ -122,7 +118,9 @@ layout = false;
             letter-spacing: 1px;
             text-shadow: 1px 1px 0 #000a;
         }
-        /* パスワード表示切替ボタン */
+        .mc-info a {
+            color: #fff !important;
+        }
         .mc-password-wrapper {
             display: flex;
             align-items: center;
@@ -142,14 +140,6 @@ layout = false;
         }
         .mc-pw-toggle:focus {
             outline: none;
-        }
-        .mc-shop-title {
-            font-family: 'Press Start 2P', 'Arial', sans-serif;
-            color: #ffe066;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
-            margin-bottom: 12px;
-            text-shadow: 2px 2px 0 #222, 0 0 8px #6bbf47;
         }
         .mc-bg-watermark {
             position: fixed;
@@ -173,49 +163,63 @@ layout = false;
     <div class="mc-bg-watermark">Minecraft SHOP</div>
     <div class="mc-login-box">
         <img src="/images/1.png" alt="Minecraftロゴ" class="mc-logo">
-        <div class="mc-title">Login</div>
+        <div class="mc-title">Register</div>
         <% if (error) { %>
             <div class="mc-error"><%= error %></div>
         <% } %>
-        <form method="POST" action="/auth/login">
+        <form method="POST" action="/auth/register">
             <div class="mc-form-group">
-                <label for="username">User Name</label>
+                <label for="username">User Name (Minecraft ID)</label>
                 <input type="text" id="username" name="username" class="mc-input" required autocomplete="username">
             </div>
             <div class="mc-form-group">
                 <label for="password">Password</label>
                 <div class="mc-password-wrapper">
-                    <input type="password" id="password" name="password" class="mc-input" required autocomplete="current-password">
+                    <input type="password" id="password" name="password" class="mc-input" required autocomplete="new-password">
                     <button type="button" id="togglePassword" class="mc-pw-toggle" tabindex="-1" aria-label="Show/Hide Password">
                         <span class="fa fa-eye" id="eyeIcon"></span>
                     </button>
                 </div>
             </div>
-            <button type="submit" class="mc-btn">Login</button>
+            <div class="mc-form-group">
+                <label for="passwordConfirm">Confirm Password</label>
+                <div class="mc-password-wrapper">
+                    <input type="password" id="passwordConfirm" name="passwordConfirm" class="mc-input" required autocomplete="new-password">
+                    <button type="button" id="togglePasswordConfirm" class="mc-pw-toggle" tabindex="-1" aria-label="Show/Hide Password">
+                        <span class="fa fa-eye" id="eyeIconConfirm"></span>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="mc-btn">Register</button>
         </form>
         <div class="mc-info">
-            <a href="/auth/register" class="mc-btn" style="margin-top:18px;display:block;">Create New Account</a>
+            <a href="/auth/login">Back to Login</a>
         </div>
     </div>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const pwInput = document.getElementById('password');
-        const toggleBtn = document.getElementById('togglePassword');
-        const eyeIcon = document.getElementById('eyeIcon');
-        let visible = false;
-        if (pwInput && toggleBtn) {
-            toggleBtn.addEventListener('click', function() {
-                visible = !visible;
-                pwInput.type = visible ? 'text' : 'password';
-                // アイコンの色と形を切り替え
-                if (visible) {
-                    eyeIcon.className = 'fa fa-eye-slash';
-                } else {
-                    eyeIcon.className = 'fa fa-eye';
-                }
-            });
-        }
-    });
+        // パスワード表示切替
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const pw = document.getElementById('password');
+            const icon = document.getElementById('eyeIcon');
+            if (pw.type === 'password') {
+                pw.type = 'text';
+                icon.className = 'fa fa-eye-slash';
+            } else {
+                pw.type = 'password';
+                icon.className = 'fa fa-eye';
+            }
+        });
+        document.getElementById('togglePasswordConfirm').addEventListener('click', function() {
+            const pw = document.getElementById('passwordConfirm');
+            const icon = document.getElementById('eyeIconConfirm');
+            if (pw.type === 'password') {
+                pw.type = 'text';
+                icon.className = 'fa fa-eye-slash';
+            } else {
+                pw.type = 'password';
+                icon.className = 'fa fa-eye';
+            }
+        });
     </script>
 </body>
 </html> 

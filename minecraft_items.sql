@@ -1,9 +1,11 @@
+-- データベース作成
 CREATE DATABASE IF NOT EXISTS minecraft_shop
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
 USE minecraft_shop;
 
-CREATE TABLE users (
+-- ユーザーテーブル作成
+CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
@@ -13,7 +15,8 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE items (
+-- アイテムテーブル作成
+CREATE TABLE IF NOT EXISTS items (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   genre VARCHAR(50) NOT NULL,
@@ -22,7 +25,8 @@ CREATE TABLE items (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE purchase_history (
+-- 購入履歴テーブル作成
+CREATE TABLE IF NOT EXISTS purchase_history (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT,
   item_id INT,
@@ -33,7 +37,8 @@ CREATE TABLE purchase_history (
   FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE RESTRICT
 );
 
-CREATE TABLE wishlist (
+-- ウィッシュリストテーブル作成
+CREATE TABLE IF NOT EXISTS wishlist (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
   item_id INT NOT NULL,
@@ -42,12 +47,23 @@ CREATE TABLE wishlist (
   FOREIGN KEY (item_id) REFERENCES items(id) ON DELETE CASCADE
 );
 
+-- モンスターテーブル作成
 CREATE TABLE IF NOT EXISTS monsters (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(64) NOT NULL,         -- 英語名（MOBID）
   strength INT NOT NULL DEFAULT 1,   -- モンスターの強さ
   reward INT NOT NULL DEFAULT 100,   -- 討伐時の報酬
   image_path VARCHAR(255)            -- 画像パス（例: /mob_images/drowned.webp）
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- モンスター討伐ログテーブル作成
+CREATE TABLE IF NOT EXISTS monster_kills (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  monster_id INT NOT NULL,
+  killed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (monster_id) REFERENCES monsters(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- アイテムデータの挿入
@@ -1808,10 +1824,10 @@ INSERT INTO monsters (name, strength, reward, image_path) VALUES ('zombie_pigman
 INSERT INTO monsters (name, strength, reward, image_path) VALUES ('zombie_villager', 1, 100, '/mob_images/zombie_villager.webp');
 
 -- 統計情報
-SELECT genre, COUNT(*) as count FROM items GROUP BY genre ORDER BY count DESC;
+--SELECT genre, COUNT(*) as count FROM items GROUP BY genre ORDER BY count DESC;
 
 -- 全アイテム数
-SELECT COUNT(*) as total_items FROM items;
+--SELECT COUNT(*) as total_items FROM items;
 
 
 -- mysql> DESCRIBE users;

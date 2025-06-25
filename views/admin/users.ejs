@@ -21,6 +21,12 @@ fetch('/admin/api/user-names').then(res => res.json()).then(list => {
   </select>
   <button type="submit" class="btn btn-success">ユーザー追加</button>
 </form>
+<style>
+.admin-user-table td, .admin-user-table th {
+  text-align: center;
+  vertical-align: middle;
+}
+</style>
 <table class="admin-user-table">
   <thead>
     <tr class="admin-user-table-header">
