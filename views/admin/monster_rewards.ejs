@@ -1,27 +1,27 @@
-<h1 style="margin-bottom: 30px; color: #2d3748;">モンスター報酬編集</h1>
+<h1 class="monster-rewards-title">モンスター報酬編集</h1>
 
-<div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
+<div class="monster-rewards-list">
   <% if (monsters && monsters.length > 0) { %>
     <% for (let i = 0; i < monsters.length; i++) { const m = monsters[i]; %>
-      <div style="background: #fff; border-radius: 0.7rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); width: 260px; padding: 1.2rem; display: flex; flex-direction: column; align-items: center;">
+      <div class="monster-reward-card">
         <% if (m.image_path) { %>
-          <img src="<%= m.image_path %>" alt="<%= m.name %>" style="width: 64px; height: 64px; object-fit: contain; margin-bottom: 0.7rem;">
+          <img src="<%= m.image_path %>" alt="<%= m.name %>" class="monster-reward-img">
         <% } %>
-        <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.3rem;"><%= m.name %></div>
-        <div style="color: #888; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <div class="monster-reward-name"><%= m.name %></div>
+        <div class="monster-reward-strength">
           <span>強さ:</span>
-          <input type="number" value="<%= m.strength %>" min="1" id="strength-<%= m.id %>" style="width:60px;">
+          <input type="number" value="<%= m.strength %>" min="1" id="strength-<%= m.id %>" class="monster-reward-strength-input">
         </div>
-        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.7rem;">
+        <div class="monster-reward-reward">
           <span>報酬:</span>
-          <input type="number" value="<%= m.reward %>" min="0" id="reward-<%= m.id %>" style="width:80px;">
+          <input type="number" value="<%= m.reward %>" min="0" id="reward-<%= m.id %>" class="monster-reward-reward-input">
           <span>円</span>
         </div>
         <button class="btn btn-success" onclick="updateMonster(<%= m.id %>)">保存</button>
       </div>
     <% } %>
   <% } else { %>
-    <div style="color:#888; padding: 2rem;">モンスターが登録されていません</div>
+    <div class="monster-reward-empty">モンスターが登録されていません</div>
   <% } %>
 </div>
 
