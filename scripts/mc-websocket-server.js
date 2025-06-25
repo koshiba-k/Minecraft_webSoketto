@@ -12,6 +12,7 @@ const HTTP_PORT = process.env.COMMAND_API_PORT || 19132; // コマンドAPI用
 // --- Minecraft用WebSocketサーバー ---
 const wss = new WebSocket.Server({ port: WS_PORT });
 console.log(`Minecraft WebSocketサーバーがポート ${WS_PORT} で起動しました。`);
+console.log(`/connect ws://localhost:19131 ${WS_PORT} で起動しました。`);
 
 let mcClient = null; // 最新のMinecraftクライアント
 
