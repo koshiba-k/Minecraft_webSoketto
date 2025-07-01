@@ -272,5 +272,4 @@ node scripts/mc-websocket-server.js
 ```
 
 ## ライセンス
-MIT License #   M i n e c r a f t _ s h o p  
- 
+MIT License 
